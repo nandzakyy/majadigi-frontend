@@ -103,40 +103,84 @@ class RSDetailScreen extends StatelessWidget {
 
   // ================= HEADER =================
   Widget _buildHeader(BuildContext context, String title) {
+    final topPadding = MediaQuery.of(context).padding.top;
+    final headerHeight = topPadding + kToolbarHeight + 40;
+
     return Container(
-      padding: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top + 16,
-        left: 16,
-        right: 16,
-        bottom: 24,
-      ),
+      height: headerHeight,
+      // clipBehavior memastikan wave tidak keluar dari radius border container utama
+      clipBehavior: Clip.antiAlias,
       decoration: const BoxDecoration(
-        color: Color(0xFF0D6EFD),
+        color: Color(0xFF0065FF), // Warna Biru Base (Bagian Atas) - 0065FF
         borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(32),
-          bottomRight: Radius.circular(32),
+          bottomLeft: Radius.circular(24),
+          bottomRight: Radius.circular(24),
         ),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Stack(
         children: [
-          Row(
-            children: [
-              GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: const Icon(Icons.arrow_back, color: Colors.white),
+          // Warna Biru Wave (Bagian Bawah)
+          Positioned.fill(
+            child: ClipPath(
+              clipper: _HeaderWaveClipper(),
+              child: Container(
+                color: const Color(0xFF005FF0), // Warna Biru pekat (Bagian Bawah) - 005FF0
               ),
-              const SizedBox(width: 16),
-              Text(
-                title,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
+            ),
           ),
-          const Icon(Icons.bookmark_border, color: Colors.white),
+
+          // Konten Header
+          Positioned(
+            top: topPadding + 16,
+            left: 16,
+            right: 16,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // Back Button (Kiri)
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
+                    ),
+                  ),
+                ),
+
+                // Title (Tengah)
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                // Bookmark Icon (Kanan)
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: GestureDetector(
+                    onTap: () {},
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.bookmark_border, color: Colors.white, size: 20),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -277,4 +321,33 @@ class RSDetailScreen extends StatelessWidget {
       ],
     );
   }
+}
+
+// ================= CLIPPER UNTUK WAVE HEADER =================
+class _HeaderWaveClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    var path = Path();
+    path.moveTo(0, size.height); // Kiri bawah
+    path.lineTo(0, size.height * 0.70); // Titik awal lengkungan di kiri
+
+    // Lengkungan pertama: Cekung ke arah bawah (menukik ke bawah lalu ke tengah sedikit naik)
+    path.quadraticBezierTo(
+      size.width * 0.25, size.height * 0.95, 
+      size.width * 0.5, size.height * 0.70
+    );
+
+    // Lengkungan kedua: Cembung ke arah atas (naik lalu turun sedikit ke kanan tepi)
+    path.quadraticBezierTo(
+      size.width * 0.75, size.height * 0.45, 
+      size.width, size.height * 0.65
+    );
+
+    path.lineTo(size.width, size.height); // Tarik ke pojok kanan bawah
+    path.close(); 
+    return path;
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => true; // Supaya realtime kalau height layar berubah
 }
