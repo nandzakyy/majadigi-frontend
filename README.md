@@ -1,4 +1,4 @@
-# majadigi_app
+# majadigi
 
 A new Flutter project.
 
