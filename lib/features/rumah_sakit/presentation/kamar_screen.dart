@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../data/rumah_sakit_data.dart';
 
 class KamarScreen extends StatelessWidget {
   const KamarScreen({super.key});
@@ -25,18 +26,37 @@ class KamarScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        flex: 5,
-                        child: _buildTotalKamarCard(),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        flex: 3,
-                        child: _buildTersediaCard(),
-                      ),
-                    ],
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    clipBehavior: Clip.none,
+                    child: Row(
+                      children: [
+                        _buildStatCard(
+                          value: "307",
+                          label: "Total Kamar Rawat",
+                          valueColor: Colors.black87,
+                          icon: Icons.domain,
+                          iconColor: Colors.grey.shade700,
+                          iconBgColor: Colors.grey.shade100,
+                        ),
+                        _buildStatCard(
+                          value: "104",
+                          label: "Tersedia",
+                          valueColor: Colors.green,
+                          icon: Icons.how_to_reg,
+                          iconColor: Colors.green,
+                          iconBgColor: Colors.green.shade50,
+                        ),
+                        _buildStatCard(
+                          value: "203",
+                          label: "Terisi",
+                          valueColor: Colors.orange,
+                          icon: Icons.groups,
+                          iconColor: Colors.orange,
+                          iconBgColor: Colors.orange.shade50,
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Align(
@@ -110,71 +130,63 @@ class KamarScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTotalKamarCard() {
+  Widget _buildStatCard({
+    required String value,
+    required String label,
+    required Color valueColor,
+    required IconData icon,
+    required Color iconColor,
+    required Color iconBgColor,
+  }) {
     return Container(
+      width: 210, // Diperlebar agar tampak memanjang
       padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(right: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "1.030",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: valueColor,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                "Total Kamar Rawat",
-                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-              ),
-            ],
+                const SizedBox(height: 4),
+                Text(
+                  label,
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  maxLines: 1, // Memaksa agar tetap 1 baris
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
           ),
+          const SizedBox(width: 8),
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              borderRadius: BorderRadius.circular(8),
+              color: iconBgColor,
+              borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.domain, color: Colors.grey),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTersediaCard() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "261",
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.green,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            "Tersedia",
-            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+            child: Icon(icon, color: iconColor, size: 20),
           ),
         ],
       ),
@@ -182,22 +194,7 @@ class KamarScreen extends StatelessWidget {
   }
 
   Widget _buildRuanganList() {
-    final List<Map<String, dynamic>> data = [
-      {"name": "HCU", "color": Colors.blue, "kapasitas": 123, "terisi": 83, "tersedia": 40},
-      {"name": "ISOLASI", "color": Colors.red, "kapasitas": 42, "terisi": 30, "tersedia": 12},
-      {"name": "KB", "color": Colors.green, "kapasitas": 3, "terisi": 0, "tersedia": 3},
-      {"name": "KELAS I", "color": Colors.indigo, "kapasitas": 127, "terisi": 104, "tersedia": 23},
-      {"name": "KELAS II", "color": Colors.lightBlue, "kapasitas": 77, "terisi": 48, "tersedia": 29},
-      {"name": "KELAS III", "color": Colors.blue.shade200, "kapasitas": 453, "terisi": 367, "tersedia": 89},
-      {"name": "ICU", "color": Colors.red.shade900, "kapasitas": 66, "terisi": 51, "tersedia": 15},
-      {"name": "Utama I", "color": Colors.blue, "kapasitas": 10, "terisi": 1, "tersedia": 9},
-      {"name": "VIP", "color": Colors.orange, "kapasitas": 101, "terisi": 75, "tersedia": 26},
-      {"name": "Utama II", "color": Colors.lightBlue, "kapasitas": 6, "terisi": 3, "tersedia": 3},
-      {"name": "Super VVIP I", "color": Colors.orange, "kapasitas": 6, "terisi": 1, "tersedia": 5},
-      {"name": "Super VVIP II", "color": Colors.orange.shade700, "kapasitas": 6, "terisi": 6, "tersedia": 0},
-      {"name": "HCU Privat", "color": Colors.indigo, "kapasitas": 4, "terisi": 3, "tersedia": 1},
-      {"name": "Non Kelas", "color": Colors.grey, "kapasitas": 6, "terisi": 1, "tersedia": 5},
-    ];
+    final data = RumahSakitData.kamarData;
 
     return Container(
       decoration: BoxDecoration(

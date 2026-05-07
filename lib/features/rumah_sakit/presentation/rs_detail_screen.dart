@@ -2,40 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'antrean_screen.dart';
 import 'kamar_screen.dart';
+import '../data/rumah_sakit_data.dart';
 
 class RSDetailScreen extends StatelessWidget {
-  final Map<String, Map<String, String>> rsData = const {
-    "RSUD Dr Soetomo": {
-      "deskripsi": "Rumah Sakit rujukan layanan kesehatan berstatus A di Jawa Timur",
-      "link": "https://rsudrsoetomo.jatimprov.go.id/",
-      "alamat": "Jl. Mayjend. Prof. Dr. Moestopo No. 6-8, Kec. Gubeng, Surabaya",
-      "jam": "Senin - Minggu: 24 Jam",
-    },
-    "RSUD Daha Husada": {
-      "deskripsi": "RSUD Daha Husada Kota Kediri",
-      "link": "https://rsuddahahusada.jatimprov.go.id/",
-      "alamat": "Jl. Veteran No.48, Mojoroto, Kediri",
-      "jam": "Senin - Jumat: 07.00 - 21.00 WIB",
-    },
-    "RSUD Haji Prov. Jatim": {
-      "deskripsi": "Rumah sakit tipe B pendidikan milik Pemerintah Provinsi Jawa Timur dengan status BLUD",
-      "link": "https://app.rsuhaji.jatimprov.go.id/online/",
-      "alamat": "Jl. Manyar Kertoadi, Sukolilo, Surabaya",
-      "jam": "Senin - Minggu: 24 Jam",
-    },
-    "RSUD Dr Saiful Anwar": {
-      "deskripsi": "RSUD DR. Saiful Anwar Provinsi Jawa Timur",
-      "link": "https://rsusaifulanwar.jatimprov.go.id/v2/",
-      "alamat": "Jl. Jaksa Agung Suprapto No.2, Malang",
-      "jam": "Senin - Minggu: 24 Jam",
-    },
-    "RSUD Karsa Husada": {
-      "deskripsi": "Rumah sakit tipe B yang melayani masyarakat di Kota Batu, Jawa Timur",
-      "link": "https://rsukarsahusadabatu.jatimprov.go.id/",
-      "alamat": "Jl. A. Yani No.10-13, Batu",
-      "jam": "Senin - Minggu: 24 Jam",
-    },
-  };
 
   final String nama;
   final String alamat;
@@ -59,7 +28,7 @@ class RSDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     int selectedTabIndex = 0;
 
-    final data = rsData[nama] ?? {};
+    final data = RumahSakitData.rsDetailData[nama] ?? {};
     final activeDeskripsi = data["deskripsi"] ?? deskripsi;
     final activeLink = data["link"] ?? linkLayanan;
     final activeAlamat = data["alamat"] ?? alamat;

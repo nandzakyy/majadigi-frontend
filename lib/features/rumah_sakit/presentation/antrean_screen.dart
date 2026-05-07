@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'data_pasien_screen.dart';
+import '../data/rumah_sakit_data.dart';
 
 class AntreanScreen extends StatefulWidget {
   final String namaRS;
@@ -14,22 +15,7 @@ class _AntreanScreenState extends State<AntreanScreen> {
   String? _selectedDokter;
   DateTime? _selectedDate;
 
-  final List<String> _poliList = [
-    "IGD",
-    "KLINIK MATA",
-    "KLINIK PENYAKIT DALAM",
-    "KLINIK KULIT KELAMIN",
-    "KLINIK BEDAH",
-    "KLINIK JANTUNG",
-    "KLINIK KUSTA",
-    "KLINIK KEBIDANAN & KANDUNGAN"
-  ];
 
-  final List<String> _dokterList = [
-    "Dr. Andi",
-    "Dr. Budi",
-    "Dr. Citra"
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -196,7 +182,7 @@ class _AntreanScreenState extends State<AntreanScreen> {
       value: _selectedPoli,
       icon: const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
       isExpanded: true,
-      items: _poliList.map((String value) {
+      items: RumahSakitData.poliList.map((String value) {
         return DropdownMenuItem<String>(
           value: value,
           child: Text(value, style: const TextStyle(fontSize: 14)),
@@ -218,7 +204,7 @@ class _AntreanScreenState extends State<AntreanScreen> {
       value: _selectedDokter,
       icon: const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
       isExpanded: true,
-      items: _dokterList.map((String value) {
+      items: RumahSakitData.dokterList.map((String value) {
         return DropdownMenuItem<String>(
           value: value,
           child: Text(value, style: const TextStyle(fontSize: 14)),

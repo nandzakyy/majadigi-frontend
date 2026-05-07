@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import '../widgets/card_layanan.dart';
+import 'card_layanan.dart';
+import '../data/rumah_sakit_data.dart';
 import 'rs_detail_screen.dart';
 import 'darurat_screen.dart';
+import '../../sidita/presentation/sidita_screen.dart';
 
 class LayananListScreen extends StatelessWidget {
   const LayananListScreen({super.key});
@@ -9,13 +11,7 @@ class LayananListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // ===== DATA RS =====
-    final List<Map<String, String>> rsList = [
-      {"nama": "RSUD Dr Soetomo", "alamat": "Surabaya", "logoPath": "assets/images/rsud_soetomo.png"},
-      {"nama": "RSUD Karsa Husada", "alamat": "Malang", "logoPath": "assets/images/rsud_karsa.png"},
-      {"nama": "RSUD Dr Saiful Anwar", "alamat": "Malang", "logoPath": "assets/images/rsud_saiful.png"},
-      {"nama": "RSUD Haji Prov. Jatim", "alamat": "Surabaya", "logoPath": "assets/images/rsud_haji.png"},
-      {"nama": "RSUD Daha Husada", "alamat": "Kediri", "logoPath": "assets/images/rsud_daha.png"},
-    ];
+    final rsList = RumahSakitData.rsList;
 
     return Scaffold(
       appBar: AppBar(title: const Text("Layanan"), centerTitle: true),
@@ -73,8 +69,9 @@ class LayananListScreen extends StatelessWidget {
             CardLayanan(
               title: "Sidita",
               onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Sidita belum dibuat")),
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SiditaScreen()),
                 );
               },
             ),
