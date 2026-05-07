@@ -10,11 +10,11 @@ class LayananListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     // ===== DATA RS =====
     final List<Map<String, String>> rsList = [
-      {"nama": "RSUD Dr Soetomo", "alamat": "Surabaya"},
-      {"nama": "RSUD Karsa Husada", "alamat": "Malang"},
-      {"nama": "RSUD Dr Saiful Anwar", "alamat": "Malang"},
-      {"nama": "RSUD Haji Prov. Jatim", "alamat": "Surabaya"},
-      {"nama": "RSUD Daha Husada", "alamat": "Kediri"},
+      {"nama": "RSUD Dr Soetomo", "alamat": "Surabaya", "logoPath": "assets/images/rsud_soetomo.png"},
+      {"nama": "RSUD Karsa Husada", "alamat": "Malang", "logoPath": "assets/images/rsud_karsa.png"},
+      {"nama": "RSUD Dr Saiful Anwar", "alamat": "Malang", "logoPath": "assets/images/rsud_saiful.png"},
+      {"nama": "RSUD Haji Prov. Jatim", "alamat": "Surabaya", "logoPath": "assets/images/rsud_haji.png"},
+      {"nama": "RSUD Daha Husada", "alamat": "Kediri", "logoPath": "assets/images/rsud_daha.png"},
     ];
 
     return Scaffold(
@@ -41,6 +41,7 @@ class LayananListScreen extends StatelessWidget {
                       builder: (_) => RSDetailScreen(
                         nama: rs["nama"]!,
                         alamat: rs["alamat"]!,
+                        logoPath: rs["logoPath"]!,
                       ),
                     ),
                   );

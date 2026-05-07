@@ -1,18 +1,54 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'antrean_screen.dart';
 import 'kamar_screen.dart';
 
 class RSDetailScreen extends StatelessWidget {
+  final Map<String, Map<String, String>> rsData = const {
+    "RSUD Dr Soetomo": {
+      "deskripsi": "Rumah Sakit rujukan layanan kesehatan berstatus A di Jawa Timur",
+      "link": "https://rsudrsoetomo.jatimprov.go.id/",
+      "alamat": "Jl. Mayjend. Prof. Dr. Moestopo No. 6-8, Kec. Gubeng, Surabaya",
+      "jam": "Senin - Minggu: 24 Jam",
+    },
+    "RSUD Daha Husada": {
+      "deskripsi": "RSUD Daha Husada Kota Kediri",
+      "link": "https://rsuddahahusada.jatimprov.go.id/",
+      "alamat": "Jl. Veteran No.48, Mojoroto, Kediri",
+      "jam": "Senin - Jumat: 07.00 - 21.00 WIB",
+    },
+    "RSUD Haji Prov. Jatim": {
+      "deskripsi": "Rumah sakit tipe B pendidikan milik Pemerintah Provinsi Jawa Timur dengan status BLUD",
+      "link": "https://app.rsuhaji.jatimprov.go.id/online/",
+      "alamat": "Jl. Manyar Kertoadi, Sukolilo, Surabaya",
+      "jam": "Senin - Minggu: 24 Jam",
+    },
+    "RSUD Dr Saiful Anwar": {
+      "deskripsi": "RSUD DR. Saiful Anwar Provinsi Jawa Timur",
+      "link": "https://rsusaifulanwar.jatimprov.go.id/v2/",
+      "alamat": "Jl. Jaksa Agung Suprapto No.2, Malang",
+      "jam": "Senin - Minggu: 24 Jam",
+    },
+    "RSUD Karsa Husada": {
+      "deskripsi": "Rumah sakit tipe B yang melayani masyarakat di Kota Batu, Jawa Timur",
+      "link": "https://rsukarsahusadabatu.jatimprov.go.id/",
+      "alamat": "Jl. A. Yani No.10-13, Batu",
+      "jam": "Senin - Minggu: 24 Jam",
+    },
+  };
+
   final String nama;
   final String alamat;
   final String deskripsi;
   final String linkLayanan;
   final String jamOperasional;
+  final String logoPath;
 
   const RSDetailScreen({
     super.key,
     required this.nama,
     required this.alamat,
+    required this.logoPath,
     this.deskripsi =
         "Rumah Sakit rujukan layanan kesehatan berstatus A di Jawa Timur",
     this.linkLayanan = "https://rsudrsoetomo.jatimprov.go.id/",
@@ -22,6 +58,12 @@ class RSDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     int selectedTabIndex = 0;
+
+    final data = rsData[nama] ?? {};
+    final activeDeskripsi = data["deskripsi"] ?? deskripsi;
+    final activeLink = data["link"] ?? linkLayanan;
+    final activeAlamat = data["alamat"] ?? alamat;
+    final activeJam = data["jam"] ?? jamOperasional;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -34,7 +76,7 @@ class RSDetailScreen extends StatelessWidget {
               child: Column(
                 children: [
                   const SizedBox(height: 32),
-                  _buildLogoPlaceholder(nama),
+                  _buildLogo(logoPath),
                   const SizedBox(height: 32),
 
                   Padding(
@@ -54,7 +96,7 @@ class RSDetailScreen extends StatelessWidget {
                             const SizedBox(height: 8),
 
                             Text(
-                              deskripsi,
+                              activeDeskripsi,
                               style: TextStyle(
                                 fontSize: 14,
                                 color: Colors.grey.shade700,
@@ -83,7 +125,7 @@ class RSDetailScreen extends StatelessWidget {
                             const SizedBox(height: 24),
 
                             if (selectedTabIndex == 0) _layananTab(context),
-                            if (selectedTabIndex == 1) _operasionalTab(),
+                            if (selectedTabIndex == 1) _operasionalTab(activeLink, activeAlamat, activeJam),
                             if (selectedTabIndex == 2) _ketentuanTab(),
 
                             const SizedBox(height: 32),
@@ -187,20 +229,12 @@ class RSDetailScreen extends StatelessWidget {
   }
 
   // ================= LOGO =================
-  Widget _buildLogoPlaceholder(String title) {
-    return Column(
-      children: [
-        Container(width: 120, height: 120, color: Colors.grey.shade200),
-        const SizedBox(height: 8),
-        Text(
-          title.toUpperCase(),
-          style: const TextStyle(
-            color: Colors.green,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const Text("BUILD TRUST"),
-      ],
+  Widget _buildLogo(String logoPath) {
+    return Image.asset(
+      logoPath,
+      width: 120,
+      height: 120,
+      fit: BoxFit.contain,
     );
   }
 
@@ -234,7 +268,7 @@ class RSDetailScreen extends StatelessWidget {
         _card(context, Icons.people, "Informasi Antrean Pasien", () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const AntreanScreen()),
+            MaterialPageRoute(builder: (_) => AntreanScreen(namaRS: nama)),
           );
         }),
         const SizedBox(height: 16),
@@ -271,15 +305,51 @@ class RSDetailScreen extends StatelessWidget {
   }
 
   // ================= TAB: OPERASIONAL =================
-  Widget _operasionalTab() {
+  Widget _operasionalTab(String activeLink, String activeAlamat, String activeJam) {
     return Column(
       children: [
-        _detail("Link Layanan", linkLayanan),
+        _detailLink("Link Layanan", activeLink),
         const SizedBox(height: 12),
-        _detail("Alamat", alamat),
+        _detail("Alamat", activeAlamat),
         const SizedBox(height: 12),
-        _detail("Jam Operasional", jamOperasional),
+        _detail("Jam Operasional", activeJam),
       ],
+    );
+  }
+
+  Widget _detailLink(String title, String linkUrl) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.shade200),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          GestureDetector(
+            onTap: () async {
+              final Uri url = Uri.parse(linkUrl);
+              try {
+                await launchUrl(url, mode: LaunchMode.externalApplication);
+              } catch (e) {
+                // Abaikan jika tidak bisa dibuka
+              }
+            },
+            child: Text(
+              linkUrl,
+              style: const TextStyle(
+                color: Colors.blue,
+                decoration: TextDecoration.underline,
+                decorationColor: Colors.blue,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

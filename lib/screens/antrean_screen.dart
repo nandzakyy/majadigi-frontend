@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'data_pasien_screen.dart';
 
 class AntreanScreen extends StatefulWidget {
-  const AntreanScreen({super.key});
+  final String namaRS;
+  const AntreanScreen({super.key, required this.namaRS});
 
   @override
   State<AntreanScreen> createState() => _AntreanScreenState();
@@ -73,9 +75,17 @@ class _AntreanScreenState extends State<AntreanScreen> {
                         elevation: 0,
                       ),
                       onPressed: () {
-                        // Aksi konfirmasi
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Konfirmasi berhasil')),
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DataPasienScreen(
+                              selectedPoli: _selectedPoli,
+                              selectedDate: _selectedDate != null 
+                                ? "${_selectedDate!.day.toString().padLeft(2, '0')}/${_selectedDate!.month.toString().padLeft(2, '0')}/${_selectedDate!.year}"
+                                : null,
+                              namaRS: widget.namaRS,
+                            ),
+                          ),
                         );
                       },
                       child: const Text(
