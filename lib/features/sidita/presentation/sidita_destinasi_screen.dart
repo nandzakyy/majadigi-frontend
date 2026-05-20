@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'checkout_screen.dart';
+import 'ticket_list_screen.dart';
+import '../../../core/widgets/custom_wave_header.dart';
 
 class SiditaDestinasiScreen extends StatefulWidget {
   const SiditaDestinasiScreen({super.key});
@@ -18,7 +20,20 @@ class _SiditaDestinasiScreenState extends State<SiditaDestinasiScreen> {
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          _buildHeader(context, "SIDITA"),
+          CustomWaveHeader(
+            title: "SIDITA",
+            rightWidget: GestureDetector(
+              onTap: () {},
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.bookmark_border, color: Colors.white, size: 20),
+              ),
+            ),
+          ),
           
           Expanded(
             child: SingleChildScrollView(
@@ -40,13 +55,18 @@ class _SiditaDestinasiScreenState extends State<SiditaDestinasiScreen> {
                   const SizedBox(height: 24),
 
                   // TABS
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _tab("Peta", 0),
-                      const SizedBox(width: 16),
-                      _tab("Daftar", 1),
-                    ],
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _tab("Peta", 0),
+                        const SizedBox(width: 8),
+                        _tab("Daftar", 1),
+                        const SizedBox(width: 8),
+                        _tab("Tiket Saya", 2),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 24),
 
@@ -102,9 +122,18 @@ class _SiditaDestinasiScreenState extends State<SiditaDestinasiScreen> {
   Widget _tab(String title, int index) {
     final active = index == selectedTabIndex;
     return GestureDetector(
-      onTap: () => setState(() => selectedTabIndex = index),
+      onTap: () {
+        if (index == 2) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const TicketListScreen()),
+          );
+          return;
+        }
+        setState(() => selectedTabIndex = index);
+      },
       child: Container(
-        width: 120,
+        width: 110,
         alignment: Alignment.center,
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
@@ -116,7 +145,7 @@ class _SiditaDestinasiScreenState extends State<SiditaDestinasiScreen> {
           style: TextStyle(
             color: active ? const Color(0xFF0065FF) : Colors.grey.shade600,
             fontWeight: active ? FontWeight.bold : FontWeight.normal,
-            fontSize: 14,
+            fontSize: 13,
           ),
         ),
       ),
@@ -268,97 +297,7 @@ class _SiditaDestinasiScreenState extends State<SiditaDestinasiScreen> {
     );
   }
 
-  // ================= HEADER =================
-  Widget _buildHeader(BuildContext context, String title) {
-    final topPadding = MediaQuery.of(context).padding.top;
-    final headerHeight = topPadding + kToolbarHeight + 40;
 
-    return Container(
-      height: headerHeight,
-      clipBehavior: Clip.antiAlias,
-      decoration: const BoxDecoration(
-        color: Color(0xFF0065FF),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(24),
-          bottomRight: Radius.circular(24),
-        ),
-      ),
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: ClipPath(
-              clipper: _HeaderWaveClipper(),
-              child: Container(
-                color: const Color(0xFF005FF0),
-              ),
-            ),
-          ),
-          Positioned(
-            top: topPadding + 16,
-            left: 16,
-            right: 16,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
-                    ),
-                  ),
-                ),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: GestureDetector(
-                    onTap: () {},
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.bookmark_border, color: Colors.white, size: 20),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
-class _HeaderWaveClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    var path = Path();
-    path.moveTo(0, size.height);
-    path.lineTo(0, size.height * 0.70);
 
-    path.quadraticBezierTo(size.width * 0.25, size.height * 0.95, size.width * 0.5, size.height * 0.70);
-    path.quadraticBezierTo(size.width * 0.75, size.height * 0.45, size.width, size.height * 0.65);
-
-    path.lineTo(size.width, size.height);
-    path.close(); 
-    return path;
-  }
-  @override
-  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => true;
-}

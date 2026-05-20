@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../data/sidita_data.dart';
 import 'sidita_destinasi_screen.dart';
+import '../../../core/widgets/custom_wave_header.dart';
 
 class SiditaScreen extends StatefulWidget {
   const SiditaScreen({super.key});
@@ -19,7 +20,20 @@ class _SiditaScreenState extends State<SiditaScreen> {
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          _buildHeader(context, SiditaData.headerData["title"]!),
+          CustomWaveHeader(
+            title: SiditaData.headerData["title"]!,
+            rightWidget: GestureDetector(
+              onTap: () {},
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.bookmark_border, color: Colors.white, size: 20),
+              ),
+            ),
+          ),
 
           Expanded(
             child: SingleChildScrollView(
@@ -122,81 +136,7 @@ class _SiditaScreenState extends State<SiditaScreen> {
     );
   }
 
-  // ================= HEADER =================
-  Widget _buildHeader(BuildContext context, String title) {
-    final topPadding = MediaQuery.of(context).padding.top;
-    final headerHeight = topPadding + kToolbarHeight + 40;
 
-    return Container(
-      height: headerHeight,
-      clipBehavior: Clip.antiAlias,
-      decoration: const BoxDecoration(
-        color: Color(0xFF0065FF),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(24),
-          bottomRight: Radius.circular(24),
-        ),
-      ),
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: ClipPath(
-              clipper: _HeaderWaveClipper(),
-              child: Container(
-                color: const Color(0xFF005FF0),
-              ),
-            ),
-          ),
-          Positioned(
-            top: topPadding + 16,
-            left: 16,
-            right: 16,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
-                    ),
-                  ),
-                ),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: GestureDetector(
-                    onTap: () {},
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.bookmark_border, color: Colors.white, size: 20),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   // ================= TAB BUTTON =================
   Widget _tab(String title, int index) {
@@ -374,29 +314,4 @@ class _SiditaScreenState extends State<SiditaScreen> {
   }
 }
 
-// ================= CLIPPER UNTUK WAVE HEADER =================
-class _HeaderWaveClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    var path = Path();
-    path.moveTo(0, size.height);
-    path.lineTo(0, size.height * 0.70);
 
-    path.quadraticBezierTo(
-      size.width * 0.25, size.height * 0.95, 
-      size.width * 0.5, size.height * 0.70
-    );
-
-    path.quadraticBezierTo(
-      size.width * 0.75, size.height * 0.45, 
-      size.width, size.height * 0.65
-    );
-
-    path.lineTo(size.width, size.height);
-    path.close(); 
-    return path;
-  }
-
-  @override
-  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => true;
-}

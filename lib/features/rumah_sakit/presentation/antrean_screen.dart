@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'data_pasien_screen.dart';
 import '../data/rumah_sakit_data.dart';
+import '../../../core/widgets/custom_wave_header.dart';
 
 class AntreanScreen extends StatefulWidget {
   final String namaRS;
@@ -24,7 +25,17 @@ class _AntreanScreenState extends State<AntreanScreen> {
       body: Column(
         children: [
           // Header biru melengkung
-          _buildHeader(context),
+          CustomWaveHeader(
+            title: "Informasi Antrean Pasien",
+            rightWidget: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.white, width: 1.5),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.bookmark_add_outlined, color: Colors.white, size: 20),
+            ),
+          ),
 
           // Form section
           Expanded(
@@ -93,54 +104,7 @@ class _AntreanScreenState extends State<AntreanScreen> {
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top + 16,
-        left: 16,
-        right: 16,
-        bottom: 24,
-      ),
-      decoration: const BoxDecoration(
-        color: Color(0xFF0D6EFD),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(32),
-          bottomRight: Radius.circular(32),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: const Icon(Icons.arrow_back, color: Colors.white),
-              ),
-              const SizedBox(width: 16),
-              const Text(
-                "Informasi Antrean Pasien",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.white, width: 1.5),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Icon(Icons.bookmark_add_outlined,
-                color: Colors.white, size: 20),
-          )
-        ],
-      ),
-    );
-  }
+
 
   Widget _buildLabel(String text) {
     return Text(

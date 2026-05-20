@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../data/rumah_sakit_data.dart';
+import '../../../core/widgets/custom_wave_header.dart';
 
 class KamarScreen extends StatelessWidget {
   const KamarScreen({super.key});
@@ -10,7 +11,20 @@ class KamarScreen extends StatelessWidget {
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          _buildHeader(context),
+          CustomWaveHeader(
+            title: "Ketersediaan Kamar Rawat",
+            rightWidget: GestureDetector(
+              onTap: () {},
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.bookmark_border, color: Colors.white, size: 20),
+              ),
+            ),
+          ),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24.0),
@@ -89,46 +103,7 @@ class KamarScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top + 16,
-        left: 16,
-        right: 16,
-        bottom: 24,
-      ),
-      decoration: const BoxDecoration(
-        color: Color(0xFF0D6EFD),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(32),
-          bottomRight: Radius.circular(32),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: const Icon(Icons.arrow_back, color: Colors.white),
-              ),
-              const SizedBox(width: 16),
-              const Text(
-                "Ketersediaan Kamar Rawat",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const Icon(Icons.bookmark_border, color: Colors.white),
-        ],
-      ),
-    );
-  }
+
 
   Widget _buildStatCard({
     required String value,

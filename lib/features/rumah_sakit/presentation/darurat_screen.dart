@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/widgets/custom_wave_header.dart';
 
 class DaruratScreen extends StatelessWidget {
   const DaruratScreen({super.key});
@@ -6,13 +7,22 @@ class DaruratScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Nomor Darurat")),
-      body: const Padding(
-        padding: EdgeInsets.all(16),
-        child: Text(
-          "Polisi: 110\nAmbulans: 118\nPemadam: 113",
-          style: TextStyle(fontSize: 16),
-        ),
+      body: Column(
+        children: [
+          const CustomWaveHeader(title: "Nomor Darurat"),
+          const Expanded(
+            child: Padding(
+              padding: EdgeInsets.all(16),
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: Text(
+                  "Polisi: 110\nAmbulans: 118\nPemadam: 113",
+                  style: TextStyle(fontSize: 16),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

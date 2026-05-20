@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../../core/widgets/custom_wave_header.dart';
+import 'ticket_detail_screen.dart';
 
-class DaftarTiketScreen extends StatelessWidget {
-  final String wisataName;
-  const DaftarTiketScreen({super.key, required this.wisataName});
+class TicketListScreen extends StatelessWidget {
+  const TicketListScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +12,7 @@ class DaftarTiketScreen extends StatelessWidget {
       body: Column(
         children: [
           CustomWaveHeader(
-            title: "Daftar Tiket Saya",
+            title: "Tiket Saya",
             rightWidget: GestureDetector(
               onTap: () {},
               child: Container(
@@ -29,7 +29,9 @@ class DaftarTiketScreen extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.all(24),
               children: [
-                _buildTiketCard(wisataName),
+                _buildTiketCard(context, "Hapuna Beach", 'assets/images/wisata_beach.png'),
+                const SizedBox(height: 16),
+                _buildTiketCard(context, "Makena Beach", 'assets/images/wisata_bromo.png'),
               ],
             ),
           ),
@@ -38,7 +40,7 @@ class DaftarTiketScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTiketCard(String name) {
+  Widget _buildTiketCard(BuildContext context, String name, String imagePath) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -64,8 +66,8 @@ class DaftarTiketScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.grey.shade300,
                   borderRadius: BorderRadius.circular(12),
-                  image: const DecorationImage(
-                    image: AssetImage('assets/images/wisata_beach.png'),
+                  image: DecorationImage(
+                    image: AssetImage(imagePath),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -121,7 +123,12 @@ class DaftarTiketScreen extends StatelessWidget {
             width: double.infinity,
             height: 40,
             child: OutlinedButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => TicketDetailScreen(eventName: name)),
+                );
+              },
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: Colors.green),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -134,8 +141,4 @@ class DaftarTiketScreen extends StatelessWidget {
       ),
     );
   }
-
-
 }
-
-
