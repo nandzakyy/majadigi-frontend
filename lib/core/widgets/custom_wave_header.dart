@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 
 class CustomWaveHeader extends StatelessWidget {
   final String title;
+  final String? subtitle;
   final bool showBackButton;
   final Widget? rightWidget;
 
   const CustomWaveHeader({
     super.key,
     required this.title,
+    this.subtitle,
     this.showBackButton = true,
     this.rightWidget,
   });
@@ -15,7 +17,7 @@ class CustomWaveHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final topPadding = MediaQuery.of(context).padding.top;
-    final headerHeight = topPadding + kToolbarHeight + 40;
+    final headerHeight = topPadding + kToolbarHeight + (subtitle != null ? 56 : 40);
 
     return Container(
       height: headerHeight,
@@ -65,13 +67,29 @@ class CustomWaveHeader extends StatelessWidget {
                       ),
                     ),
                   ),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    if (subtitle != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle!,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
                 if (rightWidget != null)
                   Align(alignment: Alignment.centerRight, child: rightWidget!)

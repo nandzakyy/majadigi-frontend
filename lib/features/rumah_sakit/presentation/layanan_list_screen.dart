@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'card_layanan.dart';
 import '../data/rumah_sakit_data.dart';
 import 'rs_detail_screen.dart';
-import 'darurat_screen.dart';
+import '../../islamic_center/presentation/islamic_center_detail_screen.dart';
 import '../../sidita/presentation/sidita_screen.dart';
 
 class LayananListScreen extends StatelessWidget {
@@ -54,13 +54,13 @@ class LayananListScreen extends StatelessWidget {
             ),
             const SizedBox(height: 12),
 
-            // ===== DARURAT =====
+            // ===== ISLAMIC CENTER =====
             CardLayanan(
-              title: "Nomor Darurat",
+              title: "Islamic Center",
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const DaruratScreen()),
+                  MaterialPageRoute(builder: (_) => const IslamicCenterDetailScreen()),
                 );
               },
             ),
