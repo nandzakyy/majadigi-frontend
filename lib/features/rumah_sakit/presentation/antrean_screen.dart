@@ -66,25 +66,29 @@ class _AntreanScreenState extends State<AntreanScreen> {
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF0D6EFD),
+                        disabledBackgroundColor: Colors.grey.shade300,
+                        disabledForegroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                         elevation: 0,
                       ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => DataPasienScreen(
-                              selectedPoli: _selectedPoli,
-                              selectedDate: _selectedDate != null 
-                                ? "${_selectedDate!.day.toString().padLeft(2, '0')}/${_selectedDate!.month.toString().padLeft(2, '0')}/${_selectedDate!.year}"
-                                : null,
-                              namaRS: widget.namaRS,
-                            ),
-                          ),
-                        );
-                      },
+                      onPressed: (_selectedPoli != null && _selectedDokter != null && _selectedDate != null)
+                          ? () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DataPasienScreen(
+                                    selectedPoli: _selectedPoli,
+                                    selectedDate: _selectedDate != null 
+                                      ? "${_selectedDate!.day.toString().padLeft(2, '0')}/${_selectedDate!.month.toString().padLeft(2, '0')}/${_selectedDate!.year}"
+                                      : null,
+                                    namaRS: widget.namaRS,
+                                  ),
+                                ),
+                              );
+                            }
+                          : null,
                       child: const Text(
                         "Konfirmasi",
                         style: TextStyle(

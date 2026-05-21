@@ -1,15 +1,15 @@
 class DetailFasilitasGedungModel {
   final String title;
-  final String kapasitas;
-  final String tarif;
-  final String imagePath;
-  final String deskripsi;
+  final String image;
+  final String price;
+  final String capacity;
+  final String description;
 
   DetailFasilitasGedungModel({
     required this.title,
-    required this.kapasitas,
-    required this.tarif,
-    required this.imagePath,
-    required this.deskripsi,
+    required this.image,
+    required this.price,
+    required this.capacity,
+    required this.description,
   });
 }

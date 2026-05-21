@@ -88,7 +88,7 @@ class DetailFasilitasGedungScreen extends StatelessWidget {
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
             child: Image.asset(
-              model.imagePath,
+              model.image,
               width: double.infinity,
               height: 180,
               fit: BoxFit.cover,
@@ -140,7 +140,7 @@ class DetailFasilitasGedungScreen extends StatelessWidget {
                               const Icon(Icons.people_outline, size: 16, color: Colors.black54),
                               const SizedBox(width: 6),
                               Text(
-                                model.kapasitas,
+                                model.capacity,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 13,
@@ -178,7 +178,7 @@ class DetailFasilitasGedungScreen extends StatelessWidget {
                               const Icon(Icons.account_balance_wallet_outlined, size: 16, color: Colors.black54),
                               const SizedBox(width: 6),
                               Text(
-                                model.tarif,
+                                model.price,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 13,
@@ -201,7 +201,10 @@ class DetailFasilitasGedungScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => DataPemesanScreen(model: model),
+                          builder: (context) => DataPemesanScreen(
+                            model: model,
+                            isAsrama: subtitle == "Asrama",
+                          ),
                         ),
                       );
                     },

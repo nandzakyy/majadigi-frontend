@@ -5,6 +5,29 @@ import 'ticket_detail_screen.dart';
 class TicketListScreen extends StatelessWidget {
   const TicketListScreen({super.key});
 
+  static final List<Map<String, String>> tickets = [
+    {
+      "name": "Hapuna Beach",
+      "image": "assets/images/wisata_beach.png",
+    },
+    {
+      "name": "Makena Beach",
+      "image": "assets/images/wisata_bromo.png",
+    },
+  ];
+
+  static void addTicket(String wisataName) {
+    final alreadyExists = tickets.any((t) => t["name"] == wisataName);
+    if (!alreadyExists) {
+      tickets.insert(0, {
+        "name": wisataName,
+        "image": wisataName.contains("Bromo") || wisataName.contains("Makena")
+            ? "assets/images/wisata_bromo.png"
+            : "assets/images/wisata_beach.png",
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,13 +49,14 @@ class TicketListScreen extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: ListView(
+            child: ListView.separated(
               padding: const EdgeInsets.all(24),
-              children: [
-                _buildTiketCard(context, "Hapuna Beach", 'assets/images/wisata_beach.png'),
-                const SizedBox(height: 16),
-                _buildTiketCard(context, "Makena Beach", 'assets/images/wisata_bromo.png'),
-              ],
+              itemCount: tickets.length,
+              separatorBuilder: (context, index) => const SizedBox(height: 16),
+              itemBuilder: (context, index) {
+                final ticket = tickets[index];
+                return _buildTiketCard(context, ticket["name"]!, ticket["image"]!);
+              },
             ),
           ),
         ],

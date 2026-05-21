@@ -5,8 +5,13 @@ import '../models/detail_fasilitas_gedung_model.dart';
 
 class DataPemesanScreen extends StatefulWidget {
   final DetailFasilitasGedungModel model;
+  final bool isAsrama;
 
-  const DataPemesanScreen({super.key, required this.model});
+  const DataPemesanScreen({
+    super.key,
+    required this.model,
+    required this.isAsrama,
+  });
 
   @override
   State<DataPemesanScreen> createState() => _DataPemesanScreenState();
@@ -18,6 +23,10 @@ class _DataPemesanScreenState extends State<DataPemesanScreen> {
   String? _selectedWaktu; // 'Siang' or 'Malam'
 
   bool get _isFormValid {
+    if (widget.isAsrama) {
+      return _namaController.text.trim().isNotEmpty &&
+          _dateController.text.trim().isNotEmpty;
+    }
     return _namaController.text.trim().isNotEmpty &&
         _dateController.text.trim().isNotEmpty &&
         _selectedWaktu != null;
@@ -75,7 +84,8 @@ class _DataPemesanScreenState extends State<DataPemesanScreen> {
 
     final String nama = _namaController.text.trim();
     final String tanggal = _dateController.text.trim();
-    final String waktu = _selectedWaktu!;
+    final isAsrama = widget.isAsrama;
+    final String waktuText = isAsrama ? "" : "\n\nWaktu:\n${_selectedWaktu!}";
 
     final String pesan = '''Assalamu'alaikum,
 Saya ingin melakukan pemesanan fasilitas Islamic Center.
@@ -87,10 +97,7 @@ Nama:
 $nama
 
 Tanggal:
-$tanggal
-
-Waktu:
-$waktu''';
+$tanggal$waktuText''';
 
     final String encodedMessage = Uri.encodeComponent(pesan);
     final Uri whatsappUrl = Uri.parse("https://wa.me/6281234567890?text=$encodedMessage");
@@ -108,6 +115,10 @@ $waktu''';
 
   @override
   Widget build(BuildContext context) {
+    final titleLower = widget.model.title.toLowerCase();
+    final hideDetailFasilitas = titleLower.contains('masjid') || titleLower.contains('akad nikah');
+    final isAsrama = widget.isAsrama;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
@@ -162,7 +173,7 @@ $waktu''';
                         ClipRRect(
                           borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                           child: Image.asset(
-                            widget.model.imagePath,
+                            widget.model.image,
                             width: double.infinity,
                             height: 180,
                             fit: BoxFit.cover,
@@ -210,7 +221,7 @@ $waktu''';
                                             const Icon(Icons.people_outline, size: 16, color: Colors.black54),
                                             const SizedBox(width: 6),
                                             Text(
-                                              widget.model.kapasitas,
+                                              widget.model.capacity,
                                               style: const TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 13,
@@ -235,9 +246,11 @@ $waktu''';
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        const Text(
-                                          "Tarif per jam",
-                                          style: TextStyle(
+                                        Text(
+                                          widget.isAsrama
+                                              ? "Tarif per malam"
+                                              : "Tarif per jam",
+                                          style: const TextStyle(
                                             fontSize: 12,
                                             color: Colors.grey,
                                           ),
@@ -248,7 +261,7 @@ $waktu''';
                                             const Icon(Icons.account_balance_wallet_outlined, size: 16, color: Colors.black54),
                                             const SizedBox(width: 6),
                                             Text(
-                                              widget.model.tarif,
+                                              widget.model.price,
                                               style: const TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 13,
@@ -271,7 +284,7 @@ $waktu''';
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                widget.model.deskripsi,
+                                widget.model.description,
                                 style: TextStyle(
                                   fontSize: 13,
                                   color: Colors.grey.shade600,
@@ -311,7 +324,7 @@ $waktu''';
                   ),
                   const SizedBox(height: 20),
 
-                  _buildLabel("Waktu"),
+                  _buildLabel(isAsrama ? "Tanggal Booking" : "Waktu"),
                   const SizedBox(height: 8),
                   TextField(
                     controller: _dateController,
@@ -336,42 +349,116 @@ $waktu''';
                   ),
                   const SizedBox(height: 20),
 
-                  Row(
-                    children: [
-                      Row(
-                        children: [
-                          Radio<String>(
-                            value: 'Siang',
-                            groupValue: _selectedWaktu,
-                            activeColor: Colors.pinkAccent,
-                            onChanged: (String? value) {
-                              setState(() {
-                                _selectedWaktu = value;
-                              });
-                            },
+                  if (!isAsrama) ...[
+                    Wrap(
+                      spacing: 16,
+                      runSpacing: 8,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Radio<String>(
+                              value: 'Siang',
+                              groupValue: _selectedWaktu,
+                              activeColor: Colors.pinkAccent,
+                              onChanged: (String? value) {
+                                setState(() {
+                                  _selectedWaktu = value;
+                                });
+                              },
+                            ),
+                            const Text(
+                              "Siang (09.00-15.00)",
+                              style: TextStyle(fontSize: 13),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Radio<String>(
+                              value: 'Malam',
+                              groupValue: _selectedWaktu,
+                              activeColor: Colors.pinkAccent,
+                              onChanged: (String? value) {
+                                setState(() {
+                                  _selectedWaktu = value;
+                                });
+                              },
+                            ),
+                            const Text(
+                              "Malam (18.00-22.00)",
+                              style: TextStyle(fontSize: 13),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+
+                  if (!hideDetailFasilitas) ...[
+                    _buildLabel("Detail Fasilitas"),
+                    const SizedBox(height: 8),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.grey.shade200),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.04),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
                           ),
-                          const Text("Siang"),
                         ],
                       ),
-                      const SizedBox(width: 24),
-                      Row(
-                        children: [
-                          Radio<String>(
-                            value: 'Malam',
-                            groupValue: _selectedWaktu,
-                            activeColor: Colors.pinkAccent,
-                            onChanged: (String? value) {
-                              setState(() {
-                                _selectedWaktu = value;
-                              });
-                            },
-                          ),
-                          const Text("Malam"),
-                        ],
+                      child: Builder(
+                        builder: (context) {
+                          final isAsrama = widget.isAsrama;
+                          final listFasilitas = isAsrama
+                              ? ['AC', 'TV', 'Meja', 'Toilet Luar']
+                              : [
+                                  'Karpet',
+                                  'Meja & kursi penerima tamu',
+                                  'Kamar rias',
+                                  'Kursi',
+                                  'Genset',
+                                  'AC',
+                                ];
+                          return Wrap(
+                            spacing: 16,
+                            runSpacing: 12,
+                            children: listFasilitas.map((item) {
+                              return Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.check_circle,
+                                    color: Color(0xFF0065FF),
+                                    size: 18,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    item,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.black87,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }).toList(),
+                          );
+                        },
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 32),
+                    ),
+                    const SizedBox(height: 32),
+                  ],
 
                   // BUTTONS ROW
                   Row(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/widgets/custom_wave_header.dart';
 import '../data/islamic_center_data.dart';
+import '../models/detail_fasilitas_gedung_model.dart';
 import 'detail_fasilitas_gedung_screen.dart';
 
 class IslamicCenterBuildingScreen extends StatelessWidget {
@@ -72,7 +73,7 @@ class IslamicCenterBuildingScreen extends StatelessWidget {
                       tags: fasilitas.tags,
                       imagePath: fasilitas.imagePath,
                       onTap: () {
-                        var list;
+                        List<DetailFasilitasGedungModel>? list;
                         if (fasilitas.nama == "Ruangan Masjid") {
                           list = IslamicCenterData.ruanganMasjidList;
                         } else if (fasilitas.nama == "Aula") {
@@ -87,7 +88,7 @@ class IslamicCenterBuildingScreen extends StatelessWidget {
                             MaterialPageRoute(
                               builder: (context) => DetailFasilitasGedungScreen(
                                 subtitle: fasilitas.nama,
-                                facilityList: list,
+                                facilityList: list!,
                               ),
                             ),
                           );

@@ -35,9 +35,9 @@ class IslamicCenterDetailScreen extends StatelessWidget {
               child: Column(
                 children: [
                   const SizedBox(height: 32),
-                  // Placeholder Logo
+                  // Main Logo
                   Image.asset(
-                    'assets/images/rsud_soetomo.png', // Temporary placeholder image
+                    'assets/images/Islamic_center_logo.png',
                     width: 120,
                     height: 120,
                     fit: BoxFit.contain,

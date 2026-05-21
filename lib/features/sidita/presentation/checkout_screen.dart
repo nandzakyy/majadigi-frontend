@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'daftar_tiket_screen.dart';
+import 'ticket_list_screen.dart';
 import '../../../core/widgets/custom_wave_header.dart';
 
 class CheckoutScreen extends StatefulWidget {
@@ -314,13 +314,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                   const SizedBox(height: 16),
-                  _summaryRow("Subtotal", "\Rp. 260.000"),
+                  _summaryRow("Subtotal", "Rp. 260.000"),
                   const SizedBox(height: 12),
-                  _summaryRow("Total Diskon", "- \Rp. 10.000"),
+                  _summaryRow("Total Diskon", "- Rp. 10.000"),
                   const SizedBox(height: 12),
                   _summaryRow(
                     "Total Pembayaran",
-                    "\Rp. 250.000",
+                    "Rp. 250.000",
                     isTotal: true,
                   ),
 
@@ -348,11 +348,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               height: 50,
               child: ElevatedButton(
                 onPressed: () {
+                  TicketListScreen.addTicket(widget.wisataName);
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) =>
-                          DaftarTiketScreen(wisataName: widget.wisataName),
+                      builder: (_) => const TicketListScreen(),
                     ),
                   );
                 },

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../core/widgets/custom_wave_header.dart';
 
-class DataPasienScreen extends StatelessWidget {
+class DataPasienScreen extends StatefulWidget {
   final String? selectedPoli;
   final String? selectedDate;
   final String namaRS;
@@ -13,6 +13,41 @@ class DataPasienScreen extends StatelessWidget {
     this.selectedDate,
     required this.namaRS,
   });
+
+  @override
+  State<DataPasienScreen> createState() => _DataPasienScreenState();
+}
+
+class _DataPasienScreenState extends State<DataPasienScreen> {
+  final TextEditingController _nikController = TextEditingController();
+  final TextEditingController _namaController = TextEditingController();
+  final TextEditingController _tglLahirController = TextEditingController();
+
+  bool get _isFormValid {
+    return _nikController.text.trim().isNotEmpty &&
+        _namaController.text.trim().isNotEmpty &&
+        _tglLahirController.text.trim().length == 10;
+  }
+
+  void _updateState() {
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _nikController.addListener(_updateState);
+    _namaController.addListener(_updateState);
+    _tglLahirController.addListener(_updateState);
+  }
+
+  @override
+  void dispose() {
+    _nikController.dispose();
+    _namaController.dispose();
+    _tglLahirController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,17 +110,29 @@ class DataPasienScreen extends StatelessWidget {
 
                   _buildLabel("NIK"),
                   const SizedBox(height: 8),
-                  _buildTextField("Masukkan NIK"),
+                  _buildTextField(
+                    _nikController,
+                    "Masukkan NIK",
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(16),
+                    ],
+                  ),
                   const SizedBox(height: 24),
                   
                   _buildLabel("Nama"),
                   const SizedBox(height: 8),
-                  _buildTextField("Masukkan Nama Lengkap"),
+                  _buildTextField(
+                    _namaController,
+                    "Masukkan Nama Lengkap",
+                  ),
                   const SizedBox(height: 24),
 
                   _buildLabel("Tanggal Lahir"),
                   const SizedBox(height: 8),
                   _buildTextField(
+                    _tglLahirController,
                     "dd/mm/yyyy", 
                     icon: Icons.calendar_today_outlined,
                     keyboardType: TextInputType.number,
@@ -100,20 +147,24 @@ class DataPasienScreen extends StatelessWidget {
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF0D6EFD),
+                        disabledBackgroundColor: Colors.grey.shade300,
+                        disabledForegroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                         elevation: 0,
                       ),
-                      onPressed: () {
-                        if (selectedPoli == null || selectedDate == null || selectedPoli!.isEmpty || selectedDate!.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Harap lengkapi data terlebih dahulu')),
-                          );
-                          return;
-                        }
-                        _showAntreanDialog(context);
-                      },
+                      onPressed: _isFormValid
+                          ? () {
+                              if (widget.selectedPoli == null || widget.selectedDate == null || widget.selectedPoli!.isEmpty || widget.selectedDate!.isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Harap lengkapi data terlebih dahulu')),
+                                );
+                                return;
+                              }
+                              _showAntreanDialog(context);
+                            }
+                          : null,
                       child: const Text(
                         "Ambil Antrean",
                         style: TextStyle(
@@ -133,8 +184,6 @@ class DataPasienScreen extends StatelessWidget {
     );
   }
 
-
-
   Widget _buildLabel(String text) {
     return Text(
       text,
@@ -146,8 +195,15 @@ class DataPasienScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTextField(String hintText, {IconData? icon, List<TextInputFormatter>? inputFormatters, TextInputType? keyboardType}) {
+  Widget _buildTextField(
+    TextEditingController controller,
+    String hintText, {
+    IconData? icon,
+    List<TextInputFormatter>? inputFormatters,
+    TextInputType? keyboardType,
+  }) {
     return TextField(
+      controller: controller,
       keyboardType: keyboardType,
       inputFormatters: inputFormatters,
       decoration: InputDecoration(
@@ -200,7 +256,7 @@ class DataPasienScreen extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      namaRS,
+                      widget.namaRS,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontSize: 18,
@@ -233,7 +289,7 @@ class DataPasienScreen extends StatelessWidget {
                     _dashedDivider(),
                     const SizedBox(height: 24),
                     Text(
-                      selectedPoli ?? "-",
+                      widget.selectedPoli ?? "-",
                       style: const TextStyle(
                         fontSize: 14,
                         color: Colors.black87,
@@ -241,7 +297,7 @@ class DataPasienScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      selectedDate ?? "-",
+                      widget.selectedDate ?? "-",
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,

@@ -163,9 +163,10 @@ class _SiditaDestinasiScreenState extends State<SiditaDestinasiScreen> {
               decoration: BoxDecoration(
                 color: Colors.blue.shade50,
                 borderRadius: BorderRadius.circular(16),
-              ),
-              child: const Center(
-                child: Text("Peta Placeholder", style: TextStyle(color: Colors.grey)),
+                image: const DecorationImage(
+                  image: AssetImage('assets/images/Jawa Timur.png'),
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
             const Positioned(top: 50, left: 80, child: Icon(Icons.location_on, color: Colors.red)),
