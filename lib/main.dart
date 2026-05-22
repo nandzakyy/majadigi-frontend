@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-import 'core/theme/app_colors.dart';
-import 'features/auth/auth_provider.dart';
-import 'features/home/dynamic_loader_provider.dart';
-import 'features/onboarding/welcome_screen.dart';
+import 'package:majadigi/core/theme/app_colors.dart';
+import 'package:majadigi/features/auth/presentation/auth_provider.dart';
+import 'package:majadigi/features/home/presentation/dynamic_loader_provider.dart';
+import 'package:majadigi/features/onboarding/presentation/welcome_screen.dart';
 
 void main() {
   runApp(
