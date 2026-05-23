@@ -23,17 +23,7 @@ class DetailFasilitasGedungScreen extends StatelessWidget {
           CustomWaveHeader(
             title: "Detail Fasilitas Gedung",
             subtitle: subtitle,
-            rightWidget: GestureDetector(
-              onTap: () {},
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.bookmark_border, color: Colors.white, size: 20),
-              ),
-            ),
+            onSavePressed: () {},
           ),
           
           Expanded(

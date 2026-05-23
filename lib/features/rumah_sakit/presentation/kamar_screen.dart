@@ -13,17 +13,7 @@ class KamarScreen extends StatelessWidget {
         children: [
           CustomWaveHeader(
             title: "Ketersediaan Kamar Rawat",
-            rightWidget: GestureDetector(
-              onTap: () {},
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.bookmark_border, color: Colors.white, size: 20),
-              ),
-            ),
+            onSavePressed: () {},
           ),
           Expanded(
             child: SingleChildScrollView(

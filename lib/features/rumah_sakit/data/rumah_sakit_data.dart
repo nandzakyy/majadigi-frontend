@@ -72,4 +72,15 @@ class RumahSakitData {
     {"name": "HCU Privat", "color": Colors.indigo, "kapasitas": 4, "terisi": 3, "tersedia": 1},
     {"name": "Non Kelas", "color": Colors.grey, "kapasitas": 6, "terisi": 1, "tersedia": 5},
   ];
+
+  static final List<Map<String, String>> ketentuanData = const [
+    {
+      "title": "Manfaat",
+      "content": "Isi detail...",
+    },
+    {
+      "title": "Pendaftaran Online",
+      "content": "Isi detail...",
+    },
+  ];
 }

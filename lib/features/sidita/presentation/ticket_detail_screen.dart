@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import '../../../core/widgets/custom_wave_header.dart';
 
 class TicketDetailScreen extends StatelessWidget {
-  final String eventName;
+  final Map<String, String> ticket;
 
-  const TicketDetailScreen({super.key, required this.eventName});
+  const TicketDetailScreen({super.key, required this.ticket});
 
   @override
   Widget build(BuildContext context) {
@@ -14,21 +14,7 @@ class TicketDetailScreen extends StatelessWidget {
         children: [
           CustomWaveHeader(
             title: "Tiket Saya",
-            rightWidget: GestureDetector(
-              onTap: () {},
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.bookmark_border,
-                  color: Colors.white,
-                  size: 20,
-                ),
-              ),
-            ),
+            onSavePressed: () {},
           ),
           Expanded(
             child: SingleChildScrollView(
@@ -108,7 +94,7 @@ class TicketDetailScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    eventName.toUpperCase(),
+                    (ticket["name"] ?? "").toUpperCase(),
                     style: const TextStyle(
                       color: Color(0xFF0044B2),
                       fontSize: 10,
@@ -117,25 +103,25 @@ class TicketDetailScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                const Text(
-                  "Tiket Masuk Pantai Hapuna",
-                  style: TextStyle(
+                Text(
+                  "Tiket Masuk ${ticket["name"] ?? ""}",
+                  style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: Colors.black87,
                   ),
                 ),
                 const SizedBox(height: 24),
-                _buildInfoRow(Icons.person_outline, "3 Visitors"),
+                _buildInfoRow(Icons.person_outline, "${ticket["quantity"] ?? "1"} Pengunjung"),
                 const SizedBox(height: 12),
                 _buildInfoRow(
                   Icons.calendar_today_outlined,
-                  "Saturday, 15 June 2026",
+                  ticket["date"] ?? "",
                 ),
                 const SizedBox(height: 12),
-                _buildInfoRow(Icons.access_time, "08:00 WIB"),
+                _buildInfoRow(Icons.access_time, "${ticket["time"] ?? ""} WIB"),
                 const SizedBox(height: 12),
-                _buildInfoRow(Icons.payments_outlined, "Total: Rp 250,000"),
+                _buildInfoRow(Icons.payments_outlined, "Total: Rp ${ticket["totalPayment"] ?? "0"}"),
               ],
             ),
           ),

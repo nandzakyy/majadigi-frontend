@@ -58,14 +58,7 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
           // Header konsisten dengan AntreanScreen
           CustomWaveHeader(
             title: "Data Pasien",
-            rightWidget: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.white, width: 1.5),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(Icons.bookmark_add_outlined, color: Colors.white, size: 20),
-            ),
+            onSavePressed: () {},
           ),
 
           // Form section

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class CustomWaveHeader extends StatelessWidget {
   final String title;
   final String? subtitle;
   final bool showBackButton;
   final Widget? rightWidget;
+  final VoidCallback? onSavePressed;
 
   const CustomWaveHeader({
     super.key,
@@ -12,6 +14,7 @@ class CustomWaveHeader extends StatelessWidget {
     this.subtitle,
     this.showBackButton = true,
     this.rightWidget,
+    this.onSavePressed,
   });
 
   @override
@@ -55,14 +58,11 @@ class CustomWaveHeader extends StatelessWidget {
                       },
                       child: Container(
                         padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.arrow_back,
-                          color: Colors.white,
-                          size: 20,
+                        color: Colors.transparent,
+                        child: SvgPicture.asset(
+                          'assets/vectors/back_icon.svg',
+                          width: 24,
+                          height: 24,
                         ),
                       ),
                     ),
@@ -91,8 +91,19 @@ class CustomWaveHeader extends StatelessWidget {
                     ],
                   ],
                 ),
-                if (rightWidget != null)
-                  Align(alignment: Alignment.centerRight, child: rightWidget!)
+                if (rightWidget != null || onSavePressed != null)
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: rightWidget ??
+                        GestureDetector(
+                          onTap: onSavePressed,
+                          child: SvgPicture.asset(
+                            'assets/vectors/save_icon.svg',
+                            width: 40,
+                            height: 40,
+                          ),
+                        ),
+                  ),
               ],
             ),
           ),

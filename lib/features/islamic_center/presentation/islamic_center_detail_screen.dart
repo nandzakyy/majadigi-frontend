@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../../core/widgets/custom_wave_header.dart';
+import '../../../core/widgets/custom_accordion_widget.dart';
+import '../../../core/widgets/custom_info_card.dart';
+import '../../../core/widgets/custom_tab_selector.dart';
 import '../data/islamic_center_data.dart';
 import 'islamic_center_building_screen.dart';
 
@@ -17,17 +19,7 @@ class IslamicCenterDetailScreen extends StatelessWidget {
         children: [
           CustomWaveHeader(
             title: "Islamic Center",
-            rightWidget: GestureDetector(
-              onTap: () {},
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.bookmark_border, color: Colors.white, size: 20),
-              ),
-            ),
+            onSavePressed: () {},
           ),
           
           Expanded(
@@ -37,7 +29,7 @@ class IslamicCenterDetailScreen extends StatelessWidget {
                   const SizedBox(height: 32),
                   // Main Logo
                   Image.asset(
-                    'assets/images/Islamic_center_logo.png',
+                    'assets/images/Islamic_Center.png',
                     width: 120,
                     height: 120,
                     fit: BoxFit.contain,
@@ -74,19 +66,14 @@ class IslamicCenterDetailScreen extends StatelessWidget {
                             const SizedBox(height: 24),
 
                             // TAB
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                _tab("Layanan", 0, selectedTabIndex, (i) {
-                                  setState(() => selectedTabIndex = i);
-                                }),
-                                _tab("Operasional", 1, selectedTabIndex, (i) {
-                                  setState(() => selectedTabIndex = i);
-                                }),
-                                _tab("Ketentuan Umum", 2, selectedTabIndex, (i) {
-                                  setState(() => selectedTabIndex = i);
-                                }),
-                              ],
+                            CustomTabSelector(
+                              tabs: const ["Layanan", "Operasional", "Ketentuan Umum"],
+                              selectedIndex: selectedTabIndex,
+                              onChanged: (index) {
+                                setState(() {
+                                  selectedTabIndex = index;
+                                });
+                              },
                             ),
 
                             const SizedBox(height: 24),
@@ -110,78 +97,25 @@ class IslamicCenterDetailScreen extends StatelessWidget {
     );
   }
 
-  // ================= TAB BUTTON =================
-  Widget _tab(String title, int index, int selected, Function(int) onTap) {
-    final active = index == selected;
 
-    return GestureDetector(
-      onTap: () => onTap(index),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: active ? const Color(0xFFE8F2FF) : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Text(
-          title,
-          style: TextStyle(
-            color: active ? const Color(0xFF0D6EFD) : Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    );
-  }
 
   // ================= TAB: LAYANAN =================
   Widget _layananTab(BuildContext context) {
     return Column(
       children: [
-        _card(context, Icons.account_balance, "Gedung Islamic Center", () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const IslamicCenterBuildingScreen(),
-            ),
-          );
-        }),
-      ],
-    );
-  }
-
-  // ================= CARD =================
-  Widget _card(BuildContext context, IconData icon, String title, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: Colors.grey.shade200),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-             color: Colors.black.withOpacity(0.03),
-             blurRadius: 4,
-             offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(14), // increased padding for the icon box as per design
-              decoration: BoxDecoration(
-                color: const Color(0xFFE8F2FF),
-                borderRadius: BorderRadius.circular(12), // more rounded corners for inner box
+        CustomInfoCard(
+          icon: Icons.account_balance,
+          title: "Gedung Islamic Center",
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const IslamicCenterBuildingScreen(),
               ),
-              child: Icon(icon, color: Colors.black87, size: 24),
-            ),
-            const SizedBox(width: 16),
-            Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Colors.black87)),
-          ],
+            );
+          },
         ),
-      ),
+      ],
     );
   }
 
@@ -190,163 +124,38 @@ class IslamicCenterDetailScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _detailLink("Link Layanan", IslamicCenterData.linkLayanan),
+        CustomInfoCard(
+          title: "Link Layanan",
+          subtitle: IslamicCenterData.linkLayanan,
+          isLink: true,
+        ),
         const SizedBox(height: 12),
-        _detail("Alamat", IslamicCenterData.alamat),
+        CustomInfoCard(
+          title: "Alamat",
+          subtitle: IslamicCenterData.alamat,
+        ),
         const SizedBox(height: 12),
-        _detail("Jam Operasional", IslamicCenterData.jamOperasional),
+        CustomInfoCard(
+          title: "Jam Operasional",
+          subtitle: IslamicCenterData.jamOperasional,
+        ),
       ],
-    );
-  }
-
-  Widget _detailLink(String title, String linkUrl) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: Colors.grey.shade200),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-          const SizedBox(height: 8),
-          GestureDetector(
-            onTap: () async {
-              final Uri url = Uri.parse(linkUrl);
-              try {
-                await launchUrl(url, mode: LaunchMode.externalApplication);
-              } catch (e) {
-                // Abaikan jika tidak bisa dibuka
-              }
-            },
-            child: Text(
-              linkUrl,
-              style: const TextStyle(
-                color: Colors.blue,
-                decoration: TextDecoration.underline,
-                decorationColor: Colors.blue,
-                fontSize: 14,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _detail(String title, String content) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: Colors.grey.shade200),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-          const SizedBox(height: 8),
-          Text(content, style: const TextStyle(fontSize: 14, color: Colors.black87)),
-        ],
-      ),
     );
   }
 
   // ================= TAB: KETENTUAN =================
   Widget _ketentuanTab() {
+    final data = IslamicCenterData.ketentuanData;
     return Column(
-      children: const [
-        _CustomAccordion(title: "Manfaat"),
-        SizedBox(height: 12),
-        _CustomAccordion(title: "Pendaftaran Online"),
-      ],
-    );
-  }
-}
-
-class _CustomAccordion extends StatefulWidget {
-  final String title;
-
-  const _CustomAccordion({required this.title});
-
-  @override
-  State<_CustomAccordion> createState() => _CustomAccordionState();
-}
-
-class _CustomAccordionState extends State<_CustomAccordion> {
-  bool _isExpanded = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: Colors.grey.shade200),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+      children: data.map((item) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: CustomAccordionWidget(
+            title: item["title"]!,
+            content: item["content"]!,
           ),
-        ],
-      ),
-      child: Theme(
-        data: ThemeData(dividerColor: Colors.transparent),
-        child: ExpansionTile(
-          onExpansionChanged: (bool expanded) {
-            setState(() {
-              _isExpanded = expanded;
-            });
-          },
-          trailing: Icon(
-            _isExpanded ? Icons.remove : Icons.add,
-            color: Colors.black,
-            size: 24,
-          ),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text(
-            widget.title,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 15,
-              color: Colors.black,
-            ),
-          ),
-          children: const [
-            Padding(
-              padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  "Isi detail lengkap mengenai ketentuan terkait.",
-                  style: TextStyle(color: Colors.black87, fontSize: 14),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+        );
+      }).toList(),
     );
   }
 }

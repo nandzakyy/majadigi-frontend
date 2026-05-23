@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../data/sidita_data.dart';
+import '../models/wisata_model.dart';
+import 'widgets/animated_pin_widget.dart';
 import 'checkout_screen.dart';
 import 'ticket_list_screen.dart';
 import '../../../core/widgets/custom_wave_header.dart';
@@ -13,6 +16,7 @@ class SiditaDestinasiScreen extends StatefulWidget {
 class _SiditaDestinasiScreenState extends State<SiditaDestinasiScreen> {
   int selectedTabIndex = 0; // 0 for Peta, 1 for Daftar
   String? selectedLocation;
+  WisataModel? selectedPinWisata;
 
   @override
   Widget build(BuildContext context) {
@@ -22,17 +26,7 @@ class _SiditaDestinasiScreenState extends State<SiditaDestinasiScreen> {
         children: [
           CustomWaveHeader(
             title: "SIDITA",
-            rightWidget: GestureDetector(
-              onTap: () {},
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.bookmark_border, color: Colors.white, size: 20),
-              ),
-            ),
+            onSavePressed: () {},
           ),
           
           Expanded(
@@ -40,32 +34,46 @@ class _SiditaDestinasiScreenState extends State<SiditaDestinasiScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const SizedBox(height: 16),
                   // Image Banner
-                  Container(
-                    width: double.infinity,
-                    height: 220,
-                    decoration: const BoxDecoration(
-                      image: DecorationImage(
-                        image: AssetImage('assets/images/wisata_bromo.png'),
-                        fit: BoxFit.cover,
-                        alignment: Alignment.topCenter,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Container(
+                      width: double.infinity,
+                      height: 180,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.06),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                        image: const DecorationImage(
+                          image: AssetImage('assets/images/wisata_bromo.png'),
+                          fit: BoxFit.cover,
+                          alignment: Alignment.topCenter,
+                        ),
                       ),
                     ),
                   ),
                   const SizedBox(height: 24),
 
                   // TABS
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _tab("Peta", 0),
-                        const SizedBox(width: 8),
-                        _tab("Daftar", 1),
-                        const SizedBox(width: 8),
-                        _tab("Tiket Saya", 2),
-                      ],
+                  Center(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _tab("Peta", 0),
+                          const SizedBox(width: 8),
+                          _tab("Daftar", 1),
+                          const SizedBox(width: 8),
+                          _tab("Tiket Saya", 2),
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -73,6 +81,7 @@ class _SiditaDestinasiScreenState extends State<SiditaDestinasiScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         // Dropdown
                         Container(
@@ -82,26 +91,52 @@ class _SiditaDestinasiScreenState extends State<SiditaDestinasiScreen> {
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: DropdownButtonHideUnderline(
-                            child: DropdownButton<String>(
+                            child: DropdownButton<String?>(
                               isExpanded: true,
                               hint: const Text("Jawa Timur (Pilih Lokasi)"),
                               value: selectedLocation,
                               icon: const Icon(Icons.filter_list),
-                              items: ["Trenggalek", "Tulungagung", "Kediri", "Surabaya"].map((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
+                              items: [
+                                const DropdownMenuItem<String?>(
+                                  value: null,
+                                  child: Text("Jawa Timur (Pilih Lokasi)"),
+                                ),
+                                ...["Trenggalek", "Kediri", "Malang"].map((String value) {
+                                  return DropdownMenuItem<String?>(
+                                    value: value,
+                                    child: Text(value),
+                                  );
+                                }),
+                              ],
                               onChanged: (val) {
                                 setState(() {
                                   selectedLocation = val;
+                                  selectedPinWisata = null; // Reset selected pin on region change
                                 });
                               },
                             ),
                           ),
                         ),
                         const SizedBox(height: 24),
+
+                        // Section Title if a region is selected
+                        if (selectedLocation != null && selectedTabIndex == 0) ...[
+                          Row(
+                            children: const [
+                              Text(
+                                "Silahkan Pilih Top 3 Wisata di Bawah",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              SizedBox(width: 6),
+                              Icon(Icons.location_on, color: Colors.red, size: 20),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                        ],
 
                         if (selectedTabIndex == 0) _petaTab(),
                         if (selectedTabIndex == 1) _daftarTab(),
@@ -152,71 +187,205 @@ class _SiditaDestinasiScreenState extends State<SiditaDestinasiScreen> {
     );
   }
 
+  String _getMapAssetPath() {
+    switch (selectedLocation) {
+      case "Trenggalek":
+        return 'assets/images/map_trenggalek.png';
+      case "Kediri":
+        return 'assets/images/map_kediri.png';
+      case "Malang":
+        return 'assets/images/map_malang.png';
+      default:
+        return 'assets/images/map_jawa_timur.png';
+    }
+  }
+
+  double _getMapAspectRatio() {
+    switch (selectedLocation) {
+      case "Trenggalek":
+        return 357 / 334;
+      case "Kediri":
+        return 354 / 294;
+      case "Malang":
+        return 353 / 240;
+      default:
+        return 347 / 290;
+    }
+  }
+
+  List<WisataModel> _getCurrentWisataList() {
+    if (selectedLocation == null) return [];
+    return SiditaData.wisataList
+        .where((w) => w.wilayah.toLowerCase() == selectedLocation!.toLowerCase())
+        .toList();
+  }
+
   Widget _petaTab() {
+    final mapPath = _getMapAssetPath();
+    final aspectRatio = _getMapAspectRatio();
+    final wisataForRegion = _getCurrentWisataList();
+
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Stack(
-          children: [
-            Container(
-              width: double.infinity,
-              height: 250,
-              decoration: BoxDecoration(
-                color: Colors.blue.shade50,
-                borderRadius: BorderRadius.circular(16),
-                image: const DecorationImage(
-                  image: AssetImage('assets/images/Jawa Timur.png'),
-                  fit: BoxFit.cover,
-                ),
+        Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.06),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
               ),
+            ],
+          ),
+          child: AspectRatio(
+            aspectRatio: aspectRatio,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    // Background Map Image
+                    Positioned.fill(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: Image.asset(
+                          mapPath,
+                          fit: BoxFit.fill,
+                        ),
+                      ),
+                    ),
+                    
+                    // Pin Points
+                    ...wisataForRegion.map((wisata) {
+                      final double left = constraints.maxWidth * wisata.pinPosition.dx;
+                      final double top = constraints.maxHeight * wisata.pinPosition.dy;
+                      
+                      // Subtract icon alignment (since icon size is 28)
+                      const double pinIconWidth = 28.0;
+                      const double pinIconHeight = 28.0;
+                      
+                      return Positioned(
+                        left: left - (pinIconWidth / 2),
+                        top: top - pinIconHeight,
+                        child: AnimatedPinWidget(
+                          wisata: wisata,
+                          isActive: selectedPinWisata == wisata,
+                          onTap: () {
+                            setState(() {
+                              selectedPinWisata = wisata;
+                            });
+                          },
+                        ),
+                      );
+                    }),
+                  ],
+                );
+              },
             ),
-            const Positioned(top: 50, left: 80, child: Icon(Icons.location_on, color: Colors.red)),
-            const Positioned(top: 100, left: 150, child: Icon(Icons.location_on, color: Colors.red)),
-            const Positioned(top: 150, left: 100, child: Icon(Icons.location_on, color: Colors.red)),
-            const Positioned(top: 80, right: 60, child: Icon(Icons.location_on, color: Colors.red)),
-          ],
+          ),
         ),
+        if (selectedLocation != null) ...[
+          const SizedBox(height: 16),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 350),
+            transitionBuilder: (Widget child, Animation<double> animation) {
+              final offsetAnimation = Tween<Offset>(
+                begin: const Offset(0.0, 0.15),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeOutCubic,
+              ));
+              return FadeTransition(
+                opacity: animation,
+                child: SlideTransition(
+                  position: offsetAnimation,
+                  child: child,
+                ),
+              );
+            },
+            child: selectedPinWisata == null
+                ? Container(
+                    key: const ValueKey('helper_text'),
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 32),
+                    alignment: Alignment.center,
+                    child: Text(
+                      "Silahkan pilih salah satu pin wisata di bawah",
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey.shade500,
+                        fontStyle: FontStyle.italic,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  )
+                : Container(
+                    key: ValueKey(selectedPinWisata!.namaWisata),
+                    child: _buildDetailCard(selectedPinWisata!),
+                  ),
+          ),
+        ],
       ],
     );
   }
 
   Widget _daftarTab() {
-    return Column(
-      children: [
-        // Button "Berdasarkan Lokasi Saya"
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          decoration: BoxDecoration(
-            color: const Color(0xFFE8F2FF),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.location_on, color: Color(0xFF0065FF), size: 20),
-              SizedBox(width: 8),
-              Text(
-                "Berdasarkan Lokasi Saya",
-                style: TextStyle(color: Color(0xFF0065FF), fontWeight: FontWeight.bold),
-              ),
-            ],
+    if (selectedLocation == null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 40.0, horizontal: 24.0),
+          child: Text(
+            "Silahkan pilih lokasi Jawa Timur terlebih dahulu di atas.",
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey.shade500,
+              fontStyle: FontStyle.italic,
+              fontWeight: FontWeight.w500,
+            ),
+            textAlign: TextAlign.center,
           ),
         ),
-        const SizedBox(height: 24),
-        
-        _buildWisataCard("Hapuna Beach"),
-        const SizedBox(height: 16),
-        _buildWisataCard("Makena Beach"),
-      ],
+      );
+    }
+
+    final paidWisataList = SiditaData.wisataList
+        .where((w) => w.isPaid && w.wilayah.toLowerCase() == selectedLocation!.toLowerCase())
+        .toList();
+
+    if (paidWisataList.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Text(
+            "Tidak ada wisata berbayar di wilayah ini.",
+            style: TextStyle(fontSize: 14, color: Colors.grey.shade500, fontStyle: FontStyle.italic),
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: paidWisataList.map((wisata) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 16.0),
+          child: _buildWisataCard(wisata),
+        );
+      }).toList(),
     );
   }
 
-  Widget _buildWisataCard(String name) {
+  Widget _buildWisataCard(WisataModel wisata) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => CheckoutScreen(wisataName: name)),
+          MaterialPageRoute(builder: (_) => CheckoutScreen(wisata: wisata)),
         );
       },
       child: Container(
@@ -242,8 +411,8 @@ class _SiditaDestinasiScreenState extends State<SiditaDestinasiScreen> {
               decoration: BoxDecoration(
                 color: Colors.grey.shade300,
                 borderRadius: BorderRadius.circular(12),
-                image: const DecorationImage(
-                  image: AssetImage('assets/images/wisata_beach.png'),
+                image: DecorationImage(
+                  image: AssetImage(wisata.image),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -256,13 +425,20 @@ class _SiditaDestinasiScreenState extends State<SiditaDestinasiScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      Expanded(
+                        child: Text(
+                          wisata.namaWisata,
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                       const Icon(Icons.bookmark, color: Colors.grey, size: 20),
                     ],
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    "Jl. Lorem Ipsum Dolor Sit Amet Bandung No. 123",
+                    wisata.alamat,
                     style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -270,8 +446,6 @@ class _SiditaDestinasiScreenState extends State<SiditaDestinasiScreen> {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      Text("4.1 km", style: TextStyle(fontSize: 12, color: Colors.grey.shade500)),
-                      const SizedBox(width: 16),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
@@ -281,7 +455,10 @@ class _SiditaDestinasiScreenState extends State<SiditaDestinasiScreen> {
                         ),
                         child: Row(
                           children: [
-                            const Text("7.8", style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+                            Text(
+                              wisata.rating.toString(),
+                              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                            ),
                             const SizedBox(width: 2),
                             Icon(Icons.star, color: Colors.orange.shade400, size: 10),
                           ],
@@ -298,7 +475,159 @@ class _SiditaDestinasiScreenState extends State<SiditaDestinasiScreen> {
     );
   }
 
-
+  Widget _buildDetailCard(WisataModel wisata) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.grey.shade200, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(22),
+              topRight: Radius.circular(22),
+            ),
+            child: Image.asset(
+              wisata.image,
+              width: double.infinity,
+              height: 200,
+              fit: BoxFit.cover,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  wisata.namaWisata,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    // Wisata Status
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "Wisata",
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Container(
+                                width: 8,
+                                height: 8,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: wisata.isPaid ? Colors.red : Colors.green,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                               Text(
+                                wisata.status,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Vertical Divider
+                    Container(
+                      width: 1,
+                      height: 32,
+                      color: Colors.grey.shade300,
+                    ),
+                    const SizedBox(width: 16),
+                    // Jam Operasional
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "Jam Operasional",
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.access_time_outlined,
+                                size: 16,
+                                color: Colors.black87,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                wisata.jamOperasional,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  "Deskripsi",
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  wisata.deskripsi,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey.shade600,
+                    height: 1.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 

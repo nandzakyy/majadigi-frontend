@@ -1,64 +1,210 @@
 import 'package:flutter/material.dart';
 import 'ticket_list_screen.dart';
+import '../models/wisata_model.dart';
 import '../../../core/widgets/custom_wave_header.dart';
 
 class CheckoutScreen extends StatefulWidget {
-  final String wisataName;
-  const CheckoutScreen({super.key, required this.wisataName});
+  final WisataModel wisata;
+  const CheckoutScreen({super.key, required this.wisata});
 
   @override
   State<CheckoutScreen> createState() => _CheckoutScreenState();
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
-  int quantity = 4;
-  DateTime? selectedDate;
-  String? selectedTime = "15.00";
+  int quantity = 1;
+  DateTime? selectedDate = DateTime.now();
+  String? selectedTime;
+  bool isVoucherApplied = false;
 
-  final List<String> timeSlots = ["08.00", "10.00", "13.00", "15.00", "17.00"];
+  @override
+  void initState() {
+    super.initState();
+    final slots = _getTimeSlots(widget.wisata.namaWisata);
+    if (slots.isNotEmpty) {
+      selectedTime = slots.first;
+    }
+  }
+
+  List<String> _getTimeSlots(String wisataName) {
+    if (wisataName.contains("Karanggongso")) {
+      return ["07.00", "09.00", "11.00", "13.00", "15.00", "17.00"];
+    } else if (wisataName.contains("Mutiara")) {
+      return ["06.00", "08.00", "10.00", "12.00", "14.00", "16.00"];
+    } else if (wisataName.contains("Dolo")) {
+      return ["07.00", "09.00", "11.00", "13.00", "15.00", "17.00"];
+    } else if (wisataName.contains("Angkut")) {
+      return ["12.00", "14.00", "16.00", "18.00", "20.00"];
+    } else if (wisataName.contains("Pelangi")) {
+      return ["08.00", "10.00", "12.00", "14.00", "16.00"];
+    } else if (wisataName.contains("Bromo")) {
+      return ["00.00", "04.00", "08.00", "12.00", "16.00", "20.00"];
+    }
+    return ["08.00", "10.00", "12.00", "14.00", "16.00"];
+  }
 
   String _formatDate(DateTime date) {
     const months = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "Mei",
-      "Jun",
-      "Jul",
-      "Agt",
-      "Sep",
-      "Okt",
-      "Nov",
-      "Des",
+      "Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
+      "Jul", "Agt", "Sep", "Okt", "Nov", "Des"
     ];
     const days = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"];
     return "${days[date.weekday - 1]}, ${date.day} ${months[date.month - 1]} ${date.year}";
   }
 
+  String _formatPrice(int price) {
+    final str = price.toString();
+    final buffer = StringBuffer();
+    int count = 0;
+    for (int i = str.length - 1; i >= 0; i--) {
+      buffer.write(str[i]);
+      count++;
+      if (count % 3 == 0 && i != 0) {
+        buffer.write('.');
+      }
+    }
+    return buffer.toString().split('').reversed.join('');
+  }
+
+  void _showVoucherDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Row(
+                  children: [
+                    Icon(Icons.local_offer, color: Color(0xFF0065FF), size: 28),
+                    SizedBox(width: 12),
+                    Text(
+                      "Pilih Voucher",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade50,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.blue.shade200),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Voucher User Baru",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF0044B2),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      const Text(
+                        "Diskon 5% untuk pembelian tiket semua wisata bagi pengguna baru.",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            "Diskon 5%",
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF0065FF),
+                            ),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                isVoucherApplied = true;
+                              });
+                              Navigator.pop(context);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF0065FF),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            ),
+                            child: const Text(
+                              "Gunakan",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                if (isVoucherApplied)
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed: () {
+                        setState(() {
+                          isVoucherApplied = false;
+                        });
+                        Navigator.pop(context);
+                      },
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.red),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        "Batalkan Voucher",
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final int subtotal = widget.wisata.hargaTiket * quantity;
+    final int discount = isVoucherApplied ? (subtotal * 0.05).round() : 0;
+    final int totalPayment = subtotal - discount;
+
+    final timeSlots = _getTimeSlots(widget.wisata.namaWisata);
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
         children: [
           CustomWaveHeader(
             title: "Checkout",
-            rightWidget: GestureDetector(
-              onTap: () {},
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.bookmark_border,
-                  color: Colors.white,
-                  size: 20,
-                ),
-              ),
-            ),
+            onSavePressed: () {},
           ),
           Expanded(
             child: SingleChildScrollView(
@@ -75,8 +221,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         decoration: BoxDecoration(
                           color: Colors.grey.shade300,
                           borderRadius: BorderRadius.circular(12),
-                          image: const DecorationImage(
-                            image: AssetImage('assets/images/wisata_beach.png'),
+                          image: DecorationImage(
+                            image: AssetImage(widget.wisata.image),
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -87,19 +233,46 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              widget.wisataName,
+                              widget.wisata.namaWisata,
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
                               ),
                             ),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 4),
                             Text(
-                              "Jl. Lorem Ipsum Dolor Sit Amet Bandung No. 123",
+                              widget.wisata.alamat,
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey.shade600,
                               ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red.shade50,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    widget.wisata.status,
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color: Colors.red.shade700,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  "•  ${widget.wisata.jamOperasional}",
+                                  style: const TextStyle(fontSize: 10, color: Colors.grey),
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -125,7 +298,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          "Anda tidak dapat mengembalikan pembayaran...",
+                          "Anda tidak dapat mengembalikan pembayaran tiket setelah pemesanan dikonfirmasi.",
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey.shade600,
@@ -276,34 +449,41 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   const SizedBox(height: 24),
 
                   // Voucher Section
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.blue.shade300),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.local_offer,
-                              color: Colors.black,
-                              size: 20,
-                            ),
-                            SizedBox(width: 8),
-                            Text(
-                              "3 voucher digunakan",
-                              style: TextStyle(
-                                color: Colors.blue,
-                                fontWeight: FontWeight.bold,
+                  GestureDetector(
+                    onTap: _showVoucherDialog,
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.blue.shade300),
+                        borderRadius: BorderRadius.circular(12),
+                        color: isVoucherApplied ? Colors.blue.shade50 : Colors.white,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.local_offer,
+                                color: isVoucherApplied ? const Color(0xFF0065FF) : Colors.black87,
+                                size: 20,
                               ),
-                            ),
-                          ],
-                        ),
-                        Icon(Icons.chevron_right, color: Colors.blue),
-                      ],
+                              const SizedBox(width: 8),
+                              Text(
+                                isVoucherApplied ? "1 voucher digunakan" : "Pilih voucher diskon",
+                                style: TextStyle(
+                                  color: isVoucherApplied ? const Color(0xFF0065FF) : Colors.blue,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Icon(
+                            isVoucherApplied ? Icons.check_circle : Icons.chevron_right,
+                            color: const Color(0xFF0065FF),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 32),
@@ -314,13 +494,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                   const SizedBox(height: 16),
-                  _summaryRow("Subtotal", "Rp. 260.000"),
+                  _summaryRow("Subtotal", "Rp. ${_formatPrice(subtotal)}"),
                   const SizedBox(height: 12),
-                  _summaryRow("Total Diskon", "- Rp. 10.000"),
+                  _summaryRow("Total Diskon", "- Rp. ${_formatPrice(discount)}"),
                   const SizedBox(height: 12),
                   _summaryRow(
                     "Total Pembayaran",
-                    "Rp. 250.000",
+                    "Rp. ${_formatPrice(totalPayment)}",
                     isTotal: true,
                   ),
 
@@ -348,7 +528,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               height: 50,
               child: ElevatedButton(
                 onPressed: () {
-                  TicketListScreen.addTicket(widget.wisataName);
+                  TicketListScreen.addTicket(
+                    name: widget.wisata.namaWisata,
+                    image: widget.wisata.image,
+                    date: selectedDate != null ? _formatDate(selectedDate!) : "Hari ini",
+                    time: selectedTime ?? "08.00",
+                    quantity: quantity.toString(),
+                    totalPayment: _formatPrice(totalPayment),
+                    alamat: widget.wisata.alamat,
+                    rating: widget.wisata.rating.toString(),
+                  );
                   Navigator.push(
                     context,
                     MaterialPageRoute(

@@ -113,4 +113,15 @@ class IslamicCenterData {
       description: "Kamar 6 Bed Islamic Center Jawa Timur menawarkan kenyamanan dengan kapasitas untuk 6 orang. Kamar ini dilengkapi dengan fasilitas seperti AC, TV, meja, dan toilet luar, membuatnya ideal untuk grup atau keluarga yang membutuhkan ruang lebih besar. Suasana yang tenang dan fasilitas lengkap menjadikan kamar ini pilihan yang tepat untuk akomodasi jangka pendek.",
     ),
   ];
+
+  static final List<Map<String, String>> ketentuanData = const [
+    {
+      "title": "Manfaat",
+      "content": "Isi detail lengkap mengenai ketentuan terkait.",
+    },
+    {
+      "title": "Pendaftaran Online",
+      "content": "Isi detail lengkap mengenai ketentuan terkait.",
+    },
+  ];
 }
