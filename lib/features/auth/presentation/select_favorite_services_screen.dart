@@ -109,7 +109,7 @@ class _SelectFavoriteServicesScreenState extends State<SelectFavoriteServicesScr
                 crossAxisCount: 2,
                 mainAxisSpacing: 12,
                 crossAxisSpacing: 12,
-                childAspectRatio: 1.1,
+                childAspectRatio: 0.8,
               ),
               itemCount: services.length,
               itemBuilder: (context, index) {
@@ -136,7 +136,7 @@ class _SelectFavoriteServicesScreenState extends State<SelectFavoriteServicesScr
                     child: Stack(
                       children: [
                         Padding(
-                          padding: const EdgeInsets.all(14),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [

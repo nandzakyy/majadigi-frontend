@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/widgets/custom_wave_header.dart';
 
 class SapaBansosNotificationsScreen extends StatelessWidget {
   const SapaBansosNotificationsScreen({Key? key}) : super(key: key);
@@ -9,7 +10,9 @@ class SapaBansosNotificationsScreen extends StatelessWidget {
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          _buildHeader(context),
+          const CustomWaveHeader(
+            title: 'Notifikasi',
+          ),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(24.0),
@@ -60,35 +63,21 @@ class SapaBansosNotificationsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.only(top: 50, left: 16, right: 16, bottom: 20),
-      decoration: const BoxDecoration(
-        color: Color(0xFF0065FF),
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
-      ),
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => Navigator.pop(context),
-          ),
-          const SizedBox(width: 8),
-          const Expanded(child: Text('Notifikasi', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold))),
-        ],
-      ),
-    );
-  }
-
   Widget _buildTab(String label, {required bool selected}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: selected ? Colors.white : Colors.transparent,
+        color: selected ? const Color(0xFFE8F2FF) : Colors.transparent,
         borderRadius: BorderRadius.circular(20),
       ),
-      child: Text(label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: selected ? const Color(0xFF0065FF) : Colors.white)),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+          color: selected ? const Color(0xFF0065FF) : Colors.black54,
+        ),
+      ),
     );
   }
 

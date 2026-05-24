@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/widgets/custom_wave_header.dart';
 
 class TransJatimDetailRuteScreen extends StatefulWidget {
   final String from;
@@ -97,7 +98,9 @@ class _TransJatimDetailRuteScreenState extends State<TransJatimDetailRuteScreen>
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          _buildHeader(context),
+          const CustomWaveHeader(
+            title: 'Detail Rute',
+          ),
           Expanded(
             child: Stack(
               children: [
@@ -183,35 +186,7 @@ class _TransJatimDetailRuteScreenState extends State<TransJatimDetailRuteScreen>
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.only(top: 50, left: 16, right: 16, bottom: 20),
-      decoration: const BoxDecoration(
-        color: Color(0xFF0D6EFD),
-        borderRadius: BorderRadius.vertical(
-          bottom: Radius.circular(30),
-        ),
-      ),
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => Navigator.pop(context),
-          ),
-          const SizedBox(width: 8),
-          const Text(
-            'Detail Rute',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+
 
   Widget _buildLocationField(String label, String value) {
     return InputDecorator(

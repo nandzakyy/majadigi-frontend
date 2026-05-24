@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/widgets/custom_wave_header.dart';
 
 class SapaBansosProgramDetailScreen extends StatelessWidget {
   final String title;
@@ -20,7 +21,10 @@ class SapaBansosProgramDetailScreen extends StatelessWidget {
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          _buildHeader(context),
+          CustomWaveHeader(
+            title: title,
+            onSavePressed: () {},
+          ),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24.0),
@@ -92,51 +96,6 @@ class SapaBansosProgramDetailScreen extends StatelessWidget {
                 ],
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeader(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.only(top: 50, left: 16, right: 16, bottom: 20),
-      decoration: const BoxDecoration(
-        color: Color(0xFF0065FF),
-        borderRadius: BorderRadius.vertical(
-          bottom: Radius.circular(30),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Colors.white),
-                  onPressed: () => Navigator.pop(context),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.bookmark_add_outlined, color: Colors.white),
-            onPressed: () {},
           ),
         ],
       ),

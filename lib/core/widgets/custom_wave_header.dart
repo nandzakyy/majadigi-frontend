@@ -58,7 +58,10 @@ class CustomWaveHeader extends StatelessWidget {
                       },
                       child: Container(
                         padding: const EdgeInsets.all(8),
-                        color: Colors.transparent,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.15),
+                          shape: BoxShape.circle,
+                        ),
                         child: SvgPicture.asset(
                           'assets/vectors/back_icon.svg',
                           width: 24,

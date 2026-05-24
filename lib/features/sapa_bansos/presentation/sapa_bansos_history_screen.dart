@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/widgets/custom_wave_header.dart';
 
 class SapaBansosHistoryScreen extends StatelessWidget {
   const SapaBansosHistoryScreen({Key? key}) : super(key: key);
@@ -9,7 +10,9 @@ class SapaBansosHistoryScreen extends StatelessWidget {
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          _buildHeader(context),
+          const CustomWaveHeader(
+            title: 'Riwayat',
+          ),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(24.0),
@@ -27,27 +30,6 @@ class SapaBansosHistoryScreen extends StatelessWidget {
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeader(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.only(top: 50, left: 16, right: 16, bottom: 20),
-      decoration: const BoxDecoration(
-        color: Color(0xFF0065FF),
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
-      ),
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => Navigator.pop(context),
-          ),
-          const SizedBox(width: 8),
-          const Expanded(child: Text('Riwayat', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold))),
         ],
       ),
     );

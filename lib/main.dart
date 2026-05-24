@@ -32,7 +32,7 @@ class MajadigiApp extends StatelessWidget {
         primaryColor: AppColors.primary,
         scaffoldBackgroundColor: AppColors.background,
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
-        textTheme: GoogleFonts.interTextTheme(
+        textTheme: GoogleFonts.poppinsTextTheme(
           Theme.of(context).textTheme,
         ),
       ),

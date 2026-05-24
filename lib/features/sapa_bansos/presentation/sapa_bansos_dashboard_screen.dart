@@ -4,6 +4,7 @@ import 'package:majadigi/features/sapa_bansos/presentation/sapa_bansos_info_prog
 import 'package:majadigi/features/sapa_bansos/presentation/sapa_bansos_pengaduan_screen.dart';
 import 'package:majadigi/features/sapa_bansos/presentation/sapa_bansos_notifications_screen.dart';
 import 'package:majadigi/features/sapa_bansos/presentation/sapa_bansos_history_screen.dart';
+import '../../../core/widgets/custom_wave_header.dart';
 
 class SapaBansosDashboardScreen extends StatelessWidget {
   const SapaBansosDashboardScreen({Key? key}) : super(key: key);
@@ -14,7 +15,20 @@ class SapaBansosDashboardScreen extends StatelessWidget {
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          _buildHeader(context),
+          CustomWaveHeader(
+            title: 'Dashboard Personal',
+            rightWidget: Container(
+              width: 40,
+              height: 40,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Color(0xFF2574E8),
+              ),
+              child: const Center(
+                child: Text('BS', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              ),
+            ),
+          ),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24.0),
@@ -36,42 +50,7 @@ class SapaBansosDashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.only(top: 50, left: 16, right: 16, bottom: 20),
-      decoration: const BoxDecoration(
-        color: Color(0xFF0065FF),
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
-      ),
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => Navigator.pop(context),
-          ),
-          const SizedBox(width: 8),
-          const Expanded(
-            child: Text(
-              'Dashboard Personal',
-              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-          ),
-          Container(
-            width: 40,
-            height: 40,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: Color(0xFF2574E8),
-            ),
-            child: const Center(
-              child: Text('BS', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+
 
   Widget _buildStatusCard() {
     return Container(

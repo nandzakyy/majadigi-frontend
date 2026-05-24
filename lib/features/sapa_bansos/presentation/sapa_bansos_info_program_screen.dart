@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:majadigi/features/sapa_bansos/presentation/sapa_bansos_program_detail_screen.dart';
+import '../../../core/widgets/custom_wave_header.dart';
 
 class SapaBansosInfoProgramScreen extends StatelessWidget {
   const SapaBansosInfoProgramScreen({Key? key}) : super(key: key);
@@ -10,7 +11,9 @@ class SapaBansosInfoProgramScreen extends StatelessWidget {
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          _buildHeader(context),
+          const CustomWaveHeader(
+            title: 'Informasi Program',
+          ),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24.0),
@@ -59,28 +62,7 @@ class SapaBansosInfoProgramScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.only(top: 50, left: 16, right: 16, bottom: 20),
-      decoration: const BoxDecoration(
-        color: Color(0xFF0065FF),
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
-      ),
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => Navigator.pop(context),
-          ),
-          const SizedBox(width: 8),
-          const Expanded(
-            child: Text('Informasi Program', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-          ),
-        ],
-      ),
-    );
-  }
+
 
   Widget _buildProgramCard({required BuildContext context, required String title, required String subtitle, required String badge, required String assetPath}) {
     return GestureDetector(

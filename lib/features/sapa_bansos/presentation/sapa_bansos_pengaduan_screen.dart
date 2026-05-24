@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:majadigi/features/sapa_bansos/presentation/sapa_bansos_pengaduan_status_screen.dart';
+import '../../../core/widgets/custom_wave_header.dart';
 
 class SapaBansosPengaduanScreen extends StatefulWidget {
   const SapaBansosPengaduanScreen({Key? key}) : super(key: key);
@@ -30,75 +31,58 @@ class _SapaBansosPengaduanScreenState extends State<SapaBansosPengaduanScreen> {
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          _buildHeader(context),
+          const CustomWaveHeader(
+            title: 'Pengaduan',
+          ),
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('Jenis Masalah', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: [
-                      _buildIssueChip('Data tidak sesuai'),
-                      _buildIssueChip('Bantuan belum diterima'),
-                      _buildIssueChip('Pencairan terlambat'),
-                      _buildIssueChip('Lainnya'),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  _buildField('Nama Lengkap', controller: _nameController),
-                  const SizedBox(height: 12),
-                  _buildField('NIK', controller: _nikController),
-                  const SizedBox(height: 12),
-                  _buildField('Deskripsi Masalah', controller: _descriptionController, maxLines: 4),
-                  const SizedBox(height: 12),
-                  _buildField('Tanggal Kejadian', controller: _dateController, suffixIcon: Icons.calendar_today),
-                  const SizedBox(height: 12),
-                  _buildUploadField(),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => const SapaBansosPengaduanStatusScreen()));
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF0065FF),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      ),
-                      child: const Text('Kirim Pengaduan', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Jenis Masalah', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: [
+                        _buildIssueChip('Data tidak sesuai'),
+                        _buildIssueChip('Bantuan belum diterima'),
+                        _buildIssueChip('Pencairan terlambat'),
+                        _buildIssueChip('Lainnya'),
+                      ],
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 24),
+                    _buildField('Nama Lengkap', controller: _nameController),
+                    const SizedBox(height: 12),
+                    _buildField('NIK', controller: _nikController),
+                    const SizedBox(height: 12),
+                    _buildField('Deskripsi Masalah', controller: _descriptionController, maxLines: 4),
+                    const SizedBox(height: 12),
+                    _buildField('Tanggal Kejadian', controller: _dateController, suffixIcon: Icons.calendar_today),
+                    const SizedBox(height: 12),
+                    _buildUploadField(),
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => const SapaBansosPengaduanStatusScreen()));
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF0065FF),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        ),
+                        child: const Text('Kirim Pengaduan', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeader(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.only(top: 50, left: 16, right: 16, bottom: 20),
-      decoration: const BoxDecoration(
-        color: Color(0xFF0065FF),
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
-      ),
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => Navigator.pop(context),
-          ),
-          const SizedBox(width: 8),
-          const Expanded(child: Text('Pengaduan', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold))),
         ],
       ),
     );

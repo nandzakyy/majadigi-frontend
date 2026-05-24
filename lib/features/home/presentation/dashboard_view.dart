@@ -202,7 +202,7 @@ class DashboardView extends StatelessWidget {
                             crossAxisCount: 3,
                             mainAxisSpacing: 12,
                             crossAxisSpacing: 12,
-                            childAspectRatio: 1,
+                            childAspectRatio: 0.8,
                           ),
                           itemCount: services.length,
                           itemBuilder: (context, index) {
@@ -214,15 +214,15 @@ class DashboardView extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(12),
                                 onTap: () => _navigateToService(context, service),
                                 child: Padding(
-                                  padding: const EdgeInsets.all(12.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 10.0),
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       service.assetPath != null
                                           ? (service.assetPath!.toLowerCase().endsWith('.svg')
-                                              ? SvgPicture.asset(service.assetPath!, width: 48, height: 48)
-                                              : Image.asset(service.assetPath!, width: 48, height: 48))
-                                          : Icon(service.icon, size: 48, color: AppColors.primary),
+                                              ? SvgPicture.asset(service.assetPath!, width: 40, height: 40)
+                                              : Image.asset(service.assetPath!, width: 40, height: 40))
+                                          : Icon(service.icon, size: 40, color: AppColors.primary),
                                       const SizedBox(height: 8),
                                       Text(
                                         service.title,
@@ -391,42 +391,48 @@ class DashboardView extends StatelessWidget {
   }
 
   Widget _buildFavoritePlaceholder(BuildContext context, {required bool isLoggedIn}) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(18),
-        splashFactory: NoSplash.splashFactory,
-        highlightColor: Colors.transparent,
-        overlayColor: MaterialStateProperty.all(Colors.transparent),
-        onTap: () {
-          if (isLoggedIn) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const SelectFavoriteServicesScreen()),
-            );
-          } else {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const LoginScreen()),
-            );
-          }
-        },
-        child: Container(
-          height: 72,
-          width: 72,
-          decoration: BoxDecoration(
-            color: AppColors.primary,
-            borderRadius: BorderRadius.circular(18),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.06),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
+    return Expanded(
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 4),
+        child: AspectRatio(
+          aspectRatio: 1.0,
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(14),
+              splashFactory: NoSplash.splashFactory,
+              highlightColor: Colors.transparent,
+              overlayColor: MaterialStateProperty.all(Colors.transparent),
+              onTap: () {
+                if (isLoggedIn) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const SelectFavoriteServicesScreen()),
+                  );
+                } else {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  );
+                }
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.06),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: const Center(
+                  child: Icon(Icons.add, color: Colors.white, size: 24),
+                ),
               ),
-            ],
-          ),
-          child: const Center(
-            child: Icon(Icons.add, color: Colors.white, size: 32),
+            ),
           ),
         ),
       ),
@@ -434,32 +440,37 @@ class DashboardView extends StatelessWidget {
   }
 
   Widget _buildFavoriteServiceCard(BuildContext context, ServiceModel service) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(18),
-        onTap: () => _navigateToService(context, service),
-        child: Container(
-          height: 72,
-          width: 72,
-          decoration: BoxDecoration(
-            color: AppColors.primary,
-            borderRadius: BorderRadius.circular(18),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.08),
-                blurRadius: 10,
-                offset: const Offset(0, 6),
+    return Expanded(
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 4),
+        child: AspectRatio(
+          aspectRatio: 1.0,
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(14),
+              onTap: () => _navigateToService(context, service),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.08),
+                      blurRadius: 10,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: Center(
+                  child: service.assetPath != null
+                      ? (service.assetPath!.toLowerCase().endsWith('.svg')
+                          ? SvgPicture.asset(service.assetPath!, width: 24, height: 24)
+                          : Image.asset(service.assetPath!, width: 24, height: 24))
+                      : Icon(service.icon, color: Colors.white, size: 24),
+                ),
               ),
-            ],
-          ),
-          padding: const EdgeInsets.all(12),
-          child: Center(
-            child: service.assetPath != null
-                ? (service.assetPath!.toLowerCase().endsWith('.svg')
-                    ? SvgPicture.asset(service.assetPath!, width: 28, height: 28)
-                    : Image.asset(service.assetPath!, width: 28, height: 28))
-                : Icon(service.icon, color: Colors.white, size: 28),
+            ),
           ),
         ),
       ),

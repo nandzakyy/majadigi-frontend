@@ -30,37 +30,22 @@ class _SiditaScreenState extends State<SiditaScreen> {
           Expanded(
             child: SingleChildScrollView(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 24),
-                  
-                  // Content utama
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Text(
-                      SiditaData.headerData["mainTitle"]!,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF0044B2), // Biru gelap
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 32),
                   
                   // Logo Sidita
                   Center(
                     child: Image.asset(
                       'assets/images/Sidita.png',
-                      width: 150,
-                      height: 150,
+                      width: 120,
+                      height: 120,
                       fit: BoxFit.contain,
                       errorBuilder: (context, error, stackTrace) {
                         return const Icon(Icons.map, size: 120, color: Colors.blue);
                       },
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 32),
 
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -70,7 +55,7 @@ class _SiditaScreenState extends State<SiditaScreen> {
                         Text(
                           SiditaData.headerData["title"]!,
                           style: const TextStyle(
-                            fontSize: 18,
+                            fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -79,7 +64,7 @@ class _SiditaScreenState extends State<SiditaScreen> {
                           SiditaData.headerData["subtitle"]!,
                           style: TextStyle(
                             fontSize: 14,
-                            color: Colors.grey.shade600,
+                            color: Colors.grey.shade700,
                           ),
                         ),
                         const SizedBox(height: 24),

@@ -35,7 +35,6 @@ class CustomTabSelector extends StatelessWidget {
                 color: active ? const Color(0xFF0D6EFD) : Colors.black,
                 fontWeight: active ? FontWeight.bold : FontWeight.normal,
                 fontSize: 14,
-                fontFamily: 'Roboto', // uses fallback or system font consistent with app
               ),
               child: Text(tabs[index]),
             ),

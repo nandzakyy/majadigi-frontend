@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:majadigi/features/nomor_darurat/data/nomor_darurat_data.dart';
+import '../../../core/widgets/custom_wave_header.dart';
+import 'package:majadigi/core/theme/app_colors.dart';
 
 class NomorDaruratKontakScreen extends StatefulWidget {
   const NomorDaruratKontakScreen({Key? key}) : super(key: key);
@@ -86,7 +88,7 @@ class _NomorDaruratKontakScreenState extends State<NomorDaruratKontakScreen> {
                           await _launchPhoneCall(phoneNumber);
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF0D6EFD),
+                          backgroundColor: AppColors.primary,
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -138,21 +140,11 @@ class _NomorDaruratKontakScreenState extends State<NomorDaruratKontakScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text(
-          'Kontak Darurat',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        backgroundColor: const Color(0xFF0D6EFD),
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-      ),
       body: Column(
         children: [
+          const CustomWaveHeader(
+            title: 'Kontak Darurat',
+          ),
           // Search Bar
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -161,7 +153,7 @@ class _NomorDaruratKontakScreenState extends State<NomorDaruratKontakScreen> {
               decoration: InputDecoration(
                 hintText: 'Cari',
                 hintStyle: const TextStyle(color: Colors.grey),
-                prefixIcon: const Icon(Icons.search, color: Color(0xFF0D6EFD)),
+                prefixIcon: const Icon(Icons.search, color: AppColors.primary),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
                         icon: const Icon(Icons.clear, color: Colors.grey),
@@ -213,7 +205,7 @@ class _NomorDaruratKontakScreenState extends State<NomorDaruratKontakScreen> {
                               _searchController.clear();
                             });
                           },
-                          selectedColor: const Color(0xFF0D6EFD),
+                          selectedColor: AppColors.primary,
                           labelStyle: TextStyle(
                             color: _selectedRegion == region
                                 ? Colors.white
@@ -305,7 +297,7 @@ class _NomorDaruratKontakScreenState extends State<NomorDaruratKontakScreen> {
             child: ElevatedButton(
               onPressed: () => _makeCall(number),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0D6EFD),
+                backgroundColor: AppColors.primary,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
