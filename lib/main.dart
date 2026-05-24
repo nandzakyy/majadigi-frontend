@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
@@ -8,6 +9,8 @@ import 'package:majadigi/features/home/presentation/dynamic_loader_provider.dart
 import 'package:majadigi/features/onboarding/presentation/welcome_screen.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   runApp(
     MultiProvider(
       providers: [

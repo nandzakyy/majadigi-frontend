@@ -96,47 +96,120 @@ class _LayananScreenState extends State<LayananScreen> {
     final services = loader.allServices.where((s) => s.title.toLowerCase().contains(_query.toLowerCase())).toList();
 
     // ensure status bar color matches header so the top area is fully blue
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(statusBarColor: AppColors.primary, statusBarIconBrightness: Brightness.light));
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ));
     return Scaffold(
       body: Column(
         children: [
           CustomWaveHeader(
+            useWaveStyle: false,
+            bottomCurveColor: AppColors.background,
             title: 'Semua Layanan',
             onBackTap: widget.onBack,
           ),
           Expanded(
             child: SafeArea(
               top: false,
+              bottom: false,
               child: Column(
                 children: [
                   const SizedBox(height: 12),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: Container(
-                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.grey.shade200, width: 1.5),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.015),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
                       child: TextField(
                         onChanged: (v) => setState(() => _query = v),
-                        decoration: const InputDecoration(hintText: 'Cari Layanan', prefixIcon: Icon(Icons.search), border: InputBorder.none, contentPadding: EdgeInsets.symmetric(vertical: 12)),
+                        style: const TextStyle(fontSize: 14),
+                        decoration: InputDecoration(
+                          hintText: 'Cari Layanan',
+                          hintStyle: TextStyle(color: Colors.grey.shade400),
+                          prefixIcon: Icon(Icons.search, color: Colors.grey.shade400, size: 20),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                        ),
                       ),
                     ),
                   ),
                   const SizedBox(height: 12),
                   Expanded(
-                    child: ListView.builder(
-                      padding: const EdgeInsets.all(16),
+                    child: GridView.builder(
+                      padding: EdgeInsets.only(
+                        left: 16,
+                        right: 16,
+                        top: 8,
+                        bottom: 110 + MediaQuery.of(context).padding.bottom,
+                      ),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        mainAxisSpacing: 16,
+                        crossAxisSpacing: 16,
+                        childAspectRatio: 1.15,
+                      ),
                       itemCount: services.length,
                       itemBuilder: (context, index) {
                         final s = services[index];
-                        return Card(
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          margin: const EdgeInsets.only(bottom: 12),
-                          child: ListTile(
-                            onTap: () => _navigateToService(context, s),
-                            leading: s.assetPath != null
-                                ? (s.assetPath!.toLowerCase().endsWith('.svg') ? SvgPicture.asset(s.assetPath!, width: 40, height: 40) : Image.asset(s.assetPath!, width: 40, height: 40))
-                                : Icon(s.icon, color: AppColors.primary),
-                            title: Text(s.title),
-                            subtitle: Text(s.category),
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.grey.shade100, width: 1.5),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.03),
+                                blurRadius: 12,
+                                offset: const Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                onTap: () => _navigateToService(context, s),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      s.assetPath != null
+                                          ? (s.assetPath!.toLowerCase().endsWith('.svg')
+                                              ? SvgPicture.asset(s.assetPath!, width: 44, height: 44)
+                                              : Image.asset(s.assetPath!, width: 44, height: 44))
+                                          : Icon(s.icon, size: 44, color: AppColors.primary),
+                                      const SizedBox(height: 10),
+                                      Text(
+                                        s.title,
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.bold,
+                                          color: AppColors.textMain,
+                                        ),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
                         );
                       },

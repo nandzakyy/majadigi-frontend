@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:provider/provider.dart';
+import 'dart:ui';
 
 import 'package:majadigi/core/theme/app_colors.dart';
 import 'package:majadigi/features/auth/presentation/auth_provider.dart';
@@ -95,16 +96,27 @@ class DashboardView extends StatelessWidget {
     final List<ServiceModel> services = dynamicLoader.personalizedServices;
     final bool hasFavorites = dynamicLoader.hasSavedPreferences;
     // ensure status bar color matches header so the top area is fully blue
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(statusBarColor: AppColors.primary, statusBarIconBrightness: Brightness.light));
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ));
     return Column(
       children: [
-        // Full-bleed header (no SafeArea) so blue extends to status bar edges
         CustomWaveHeader(
-          title: 'Halo, ${auth.isLoggedIn ? auth.userName : "Guest"}!',
-          subtitle: auth.isLoggedIn ? 'Selamat datang di Superapp Majadigi' : 'Silakan login untuk fitur penuh',
+          useWaveStyle: false,
+          title: auth.isLoggedIn ? auth.userName : 'Pengunjung',
+          subtitle: 'Selamat pagi',
           showBackButton: false,
+          centerTitle: false,
+          leadingWidget: CircleAvatar(
+            radius: 22,
+            backgroundColor: Colors.grey.shade200,
+            child: Icon(Icons.person, color: Colors.grey.shade500, size: 28),
+          ),
           rightWidget: !auth.isLoggedIn
-              ? ElevatedButton(
+              ? IconButton(
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -113,29 +125,26 @@ class DashboardView extends StatelessWidget {
                       ),
                     );
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: AppColors.primary,
-                    elevation: 0,
-                    side: const BorderSide(color: Colors.white70),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                  ),
-                  child: const Text('Login'),
+                  icon: const Icon(Icons.login_rounded, color: Colors.white, size: 26),
                 )
               : IconButton(
                   onPressed: () {
                     auth.logout();
                     dynamicLoader.clearPreferences();
                   },
-                  icon: const Icon(Icons.logout, color: Colors.white),
+                  icon: const Icon(Icons.logout_rounded, color: Colors.white, size: 26),
                 ),
         ),
         // Content inside SafeArea so it doesn't collide with system UI
         Expanded(
           child: SafeArea(
             top: false,
+            bottom: false,
             child: ListView(
-              padding: const EdgeInsets.symmetric(vertical: 18),
+              padding: EdgeInsets.only(
+                top: 18,
+                bottom: 110 + MediaQuery.of(context).padding.bottom,
+              ),
               children: [
                 // The rest of the page content is horizontally padded so header can be full-bleed
                 Padding(
@@ -168,39 +177,87 @@ class DashboardView extends StatelessWidget {
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3,
-                            mainAxisSpacing: 12,
-                            crossAxisSpacing: 12,
-                            childAspectRatio: 0.8,
+                            crossAxisCount: 2,
+                            mainAxisSpacing: 16,
+                            crossAxisSpacing: 16,
+                            childAspectRatio: 1.15,
                           ),
                           itemCount: services.length,
                           itemBuilder: (context, index) {
                             final service = services[index];
-                            return Card(
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                              elevation: 2,
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(12),
-                                onTap: () => _navigateToService(context, service),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 10.0),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      service.assetPath != null
-                                          ? (service.assetPath!.toLowerCase().endsWith('.svg')
-                                              ? SvgPicture.asset(service.assetPath!, width: 40, height: 40)
-                                              : Image.asset(service.assetPath!, width: 40, height: 40))
-                                          : Icon(service.icon, size: 40, color: AppColors.primary),
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        service.title,
-                                        textAlign: TextAlign.center,
-                                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ],
+                            return Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: Colors.grey.shade100, width: 1.5),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.03),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 6),
+                                  ),
+                                ],
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(16),
+                                child: Material(
+                                  color: Colors.transparent,
+                                  child: InkWell(
+                                    onTap: () => _navigateToService(context, service),
+                                    child: Stack(
+                                      children: [
+                                        // Rank Badge
+                                        Positioned(
+                                          top: 10,
+                                          right: 10,
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                            decoration: BoxDecoration(
+                                              color: AppColors.primary.withOpacity(0.08),
+                                              borderRadius: BorderRadius.circular(20),
+                                            ),
+                                            child: Text(
+                                              '#${index + 1}',
+                                              style: const TextStyle(
+                                                color: AppColors.primary,
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        // Centered content
+                                        Align(
+                                          alignment: Alignment.center,
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 16.0),
+                                            child: Column(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                const SizedBox(height: 12),
+                                                service.assetPath != null
+                                                    ? (service.assetPath!.toLowerCase().endsWith('.svg')
+                                                        ? SvgPicture.asset(service.assetPath!, width: 44, height: 44)
+                                                        : Image.asset(service.assetPath!, width: 44, height: 44))
+                                                    : Icon(service.icon, size: 44, color: AppColors.primary),
+                                                const SizedBox(height: 10),
+                                                Text(
+                                                  service.title,
+                                                  textAlign: TextAlign.center,
+                                                  style: const TextStyle(
+                                                    fontSize: 13,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: AppColors.textMain,
+                                                  ),
+                                                  maxLines: 2,
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
@@ -273,15 +330,21 @@ class DashboardView extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFF0065FF).withOpacity(0.08), width: 1.5),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Colors.white, Color(0xFFF9FAFF)],
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 16,
+            color: const Color(0xFF0065FF).withOpacity(0.03),
+            blurRadius: 20,
             offset: const Offset(0, 8),
           ),
         ],
       ),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -296,7 +359,7 @@ class DashboardView extends StatelessWidget {
                         width: 140,
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.12),
+                          color: AppColors.primary.withOpacity(0.08),
                           borderRadius: BorderRadius.circular(18),
                         ),
                         child: const Center(
@@ -314,7 +377,7 @@ class DashboardView extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.12),
+                      color: AppColors.primary.withOpacity(0.08),
                       borderRadius: BorderRadius.circular(18),
                     ),
                     child: const Center(
@@ -362,16 +425,13 @@ class DashboardView extends StatelessWidget {
   Widget _buildFavoritePlaceholder(BuildContext context, {required bool isLoggedIn}) {
     return Expanded(
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 4),
+        margin: const EdgeInsets.symmetric(horizontal: 5),
         child: AspectRatio(
           aspectRatio: 1.0,
           child: Material(
             color: Colors.transparent,
             child: InkWell(
               borderRadius: BorderRadius.circular(14),
-              splashFactory: NoSplash.splashFactory,
-              highlightColor: Colors.transparent,
-              overlayColor: MaterialStateProperty.all(Colors.transparent),
               onTap: () {
                 if (isLoggedIn) {
                   Navigator.push(
@@ -385,20 +445,33 @@ class DashboardView extends StatelessWidget {
                   );
                 }
               },
-              child: Container(
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.06),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+              child: CustomPaint(
+                painter: DashedBorderPainter(
+                  color: AppColors.primary.withOpacity(0.35),
+                  borderRadius: 14,
                 ),
-                child: const Center(
-                  child: Icon(Icons.add, color: Colors.white, size: 24),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.01),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      )
+                    ],
+                  ),
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withOpacity(0.07),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.add_rounded, color: AppColors.primary, size: 20),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -411,7 +484,7 @@ class DashboardView extends StatelessWidget {
   Widget _buildFavoriteServiceCard(BuildContext context, ServiceModel service) {
     return Expanded(
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 4),
+        margin: const EdgeInsets.symmetric(horizontal: 5),
         child: AspectRatio(
           aspectRatio: 1.0,
           child: Material(
@@ -425,9 +498,9 @@ class DashboardView extends StatelessWidget {
                   borderRadius: BorderRadius.circular(14),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
+                      color: AppColors.primary.withOpacity(0.2),
                       blurRadius: 10,
-                      offset: const Offset(0, 6),
+                      offset: const Offset(0, 5),
                     ),
                   ],
                 ),
@@ -445,6 +518,7 @@ class DashboardView extends StatelessWidget {
       ),
     );
   }
+
   Widget _buildServiceIcon(ServiceModel service) {
     final assetPath = service.assetPath;
 
@@ -459,49 +533,140 @@ class DashboardView extends StatelessWidget {
   }
 
   Widget _buildEkoCard(BuildContext context, {required String title, required String description, required String assetPath, required String url}) {
-    return InkWell(
-      onTap: () async {
-        final uri = Uri.parse(url);
-        final can = await canLaunchUrl(uri);
-        if (!can) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Tidak dapat membuka link')));
-          return;
-        }
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      },
-      child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Row(
-            children: [
-              Container(
-                width: 64,
-                height: 64,
-                decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: AppColors.cardBg),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: assetPath.toLowerCase().endsWith('.svg')
-                      ? SvgPicture.asset(assetPath)
-                      : Image.asset(assetPath),
-                ),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade100, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.015),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () async {
+              final uri = Uri.parse(url);
+              final can = await canLaunchUrl(uri);
+              if (!can) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Tidak dapat membuka link')));
+                return;
+              }
+              await launchUrl(uri, mode: LaunchMode.externalApplication);
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(14.0),
+              child: Row(
+                children: [
+                  Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      color: const Color(0xFFF6F9FF),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: assetPath.toLowerCase().endsWith('.svg')
+                          ? SvgPicture.asset(assetPath)
+                          : Image.asset(assetPath),
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textMain,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          description,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade600,
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 6),
-                    Text(description, style: const TextStyle(fontSize: 13, color: Colors.black87)),
-                  ],
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
     );
   }
+}
 
+class DashedBorderPainter extends CustomPainter {
+  final Color color;
+  final double strokeWidth;
+  final double gap;
+  final double dash;
+  final double borderRadius;
+
+  DashedBorderPainter({
+    required this.color,
+    this.strokeWidth = 1.5,
+    this.gap = 4.0,
+    this.dash = 6.0,
+    this.borderRadius = 14.0,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke;
+
+    final RRect rrect = RRect.fromRectAndRadius(
+      Rect.fromLTWH(0, 0, size.width, size.height),
+      Radius.circular(borderRadius),
+    );
+
+    final Path path = Path()..addRRect(rrect);
+    final Path dashedPath = Path();
+
+    for (final PathMetric metric in path.computeMetrics()) {
+      double distance = 0.0;
+      bool draw = true;
+      while (distance < metric.length) {
+        final double len = draw ? dash : gap;
+        dashedPath.addPath(
+          metric.extractPath(distance, distance + len),
+          Offset.zero,
+        );
+        distance += len;
+        draw = !draw;
+      }
+    }
+
+    canvas.drawPath(dashedPath, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant DashedBorderPainter oldDelegate) {
+    return oldDelegate.color != color ||
+        oldDelegate.strokeWidth != strokeWidth ||
+        oldDelegate.gap != gap ||
+        oldDelegate.dash != dash ||
+        oldDelegate.borderRadius != borderRadius;
+  }
 }

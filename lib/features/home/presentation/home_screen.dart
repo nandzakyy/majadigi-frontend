@@ -34,34 +34,78 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
+      backgroundColor: Colors.white,
       body: _pages[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
+      bottomNavigationBar: _buildBottomBar(context),
+    );
+  }
+
+  Widget _buildBottomBar(BuildContext context) {
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    return Container(
+      margin: EdgeInsets.only(
+        left: 24,
+        right: 24,
+        bottom: bottomPadding > 0 ? bottomPadding + 6 : 16,
+        top: 8,
+      ),
+      height: 70,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.grey.shade200, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _buildNavItem(0, Icons.home_outlined, Icons.home, 'Beranda'),
+          _buildNavItem(1, Icons.wallet_outlined, Icons.wallet, 'Layanan'),
+          _buildNavItem(2, Icons.person_outline, Icons.person, 'Akun'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNavItem(int index, IconData inactiveIcon, IconData activeIcon, String label) {
+    final isSelected = _currentIndex == index;
+    final color = isSelected ? AppColors.primary : Colors.grey.shade400;
+
+    return Expanded(
+      child: InkWell(
+        onTap: () {
           setState(() {
             _currentIndex = index;
           });
         },
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.textSecondary,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
-            label: 'Beranda',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.grid_view_outlined),
-            activeIcon: Icon(Icons.grid_view),
-            label: 'Layanan',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
-            label: 'Akun',
-          ),
-        ],
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              isSelected ? activeIcon : inactiveIcon,
+              color: color,
+              size: 24,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                color: color,
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
