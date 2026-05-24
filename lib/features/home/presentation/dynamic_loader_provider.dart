@@ -5,15 +5,15 @@ import 'package:majadigi/features/home/model/user_preference_model.dart';
 class DynamicLoaderProvider extends ChangeNotifier {
   // Mock Database Layer: List of all available services
   final List<ServiceModel> _allServices = [
-    ServiceModel(title: 'Sapa Bansos', icon: Icons.volunteer_activism, category: 'Bantuan Sosial', availableRegions: ['All'], assetPath: 'assets/images/logo_jawa_timur.png'),
+    ServiceModel(title: 'Sapa Bansos', icon: Icons.volunteer_activism, category: 'Bantuan Sosial', availableRegions: ['All'], assetPath: 'assets/images/sapa_bansos.png'),
     ServiceModel(title: 'Nomor Darurat', icon: Icons.emergency, category: 'Bantuan Sosial', availableRegions: ['All'], assetPath: 'assets/images/logo_jawa_timur.png'),
     ServiceModel(title: 'Transjatim', icon: Icons.directions_bus, category: 'Transportasi', availableRegions: ['Surabaya', 'Sidoarjo', 'Gresik', 'Mojokerto'], assetPath: 'assets/images/logo_trans_jatim.png'),
     ServiceModel(title: 'RSUD Dr. Soetomo', icon: Icons.local_hospital, category: 'Rawat Jalan/Poliklinik', availableRegions: ['Surabaya'], assetPath: 'assets/vectors/logo_rsud_dr_soetomo.svg'),
     ServiceModel(title: 'RSUD Saiful Anwar', icon: Icons.health_and_safety, category: 'Rawat Jalan/Poliklinik', availableRegions: ['Malang'], assetPath: 'assets/images/logo_rsud_dr_saiful_anwar.png'),
     ServiceModel(title: 'RSUD Daha Husada', icon: Icons.monitor_heart, category: 'Laboratorium & Radiologi', availableRegions: ['Kediri'], assetPath: 'assets/images/logo_rsud_daha_husada.png'),
-    ServiceModel(title: 'Islamic Center', icon: Icons.mosque, category: 'Informasi Daerah', availableRegions: ['All'], assetPath: 'assets/images/logo_jawa_timur.png'),
+    ServiceModel(title: 'Islamic Center', icon: Icons.mosque, category: 'Informasi Daerah', availableRegions: ['All'], assetPath: 'assets/images/Islamic_Center.png'),
     ServiceModel(title: 'RSUD Karsa Husada', icon: Icons.medical_services, category: 'Rawat Inap', availableRegions: ['Batu', 'Malang'], assetPath: 'assets/images/logo_rsud_karsa_husada_batu.png'),
-    ServiceModel(title: 'Sidita', icon: Icons.map_outlined, category: 'Informasi Daerah', availableRegions: ['All'], assetPath: 'assets/images/logo_jawa_timur.png'),
+    ServiceModel(title: 'Sidita', icon: Icons.map_outlined, category: 'Informasi Daerah', availableRegions: ['All'], assetPath: 'assets/images/Sidita.png'),
     ServiceModel(title: 'RSUD Haji', icon: Icons.healing, category: 'IGD', availableRegions: ['Surabaya'], assetPath: 'assets/images/logo_rsud_haji_prov_jatim.png'),
   ];
 

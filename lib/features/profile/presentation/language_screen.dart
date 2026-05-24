@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:majadigi/core/widgets/custom_wave_header.dart';
 
 class LanguageScreen extends StatefulWidget {
   const LanguageScreen({Key? key}) : super(key: key);
@@ -14,32 +15,33 @@ class _LanguageScreenState extends State<LanguageScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text('Bahasa', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-        backgroundColor: const Color(0xFF0D6EFD),
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(24.0),
+      body: Column(
         children: [
-          const Text(
-            'Disarankan',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF2C3E50)),
+          const CustomWaveHeader(title: 'Bahasa'),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.all(24.0),
+              children: [
+                const Text(
+                  'Disarankan',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF2C3E50)),
+                ),
+                const SizedBox(height: 16),
+                _buildLanguageItem('English'),
+                _buildLanguageItem('Indonesia'),
+                
+                const SizedBox(height: 32),
+                const Text(
+                  'Lainnya',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF2C3E50)),
+                ),
+                const SizedBox(height: 16),
+                _buildLanguageItem('Jawa'),
+                _buildLanguageItem('Madura'),
+                _buildLanguageItem('Osing'),
+              ],
+            ),
           ),
-          const SizedBox(height: 16),
-          _buildLanguageItem('English'),
-          _buildLanguageItem('Indonesia'),
-          
-          const SizedBox(height: 32),
-          const Text(
-            'Lainnya',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF2C3E50)),
-          ),
-          const SizedBox(height: 16),
-          _buildLanguageItem('Jawa'),
-          _buildLanguageItem('Madura'),
-          _buildLanguageItem('Osing'),
         ],
       ),
     );

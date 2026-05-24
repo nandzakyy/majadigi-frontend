@@ -7,6 +7,7 @@ class CustomWaveHeader extends StatelessWidget {
   final bool showBackButton;
   final Widget? rightWidget;
   final VoidCallback? onSavePressed;
+  final VoidCallback? onBackTap;
 
   const CustomWaveHeader({
     super.key,
@@ -15,6 +16,7 @@ class CustomWaveHeader extends StatelessWidget {
     this.showBackButton = true,
     this.rightWidget,
     this.onSavePressed,
+    this.onBackTap,
   });
 
   @override
@@ -51,7 +53,7 @@ class CustomWaveHeader extends StatelessWidget {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: GestureDetector(
-                      onTap: () {
+                      onTap: onBackTap ?? () {
                         if (Navigator.canPop(context)) {
                           Navigator.pop(context);
                         }

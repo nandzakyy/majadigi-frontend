@@ -31,7 +31,7 @@ class SapaBansosMainScreen extends StatelessWidget {
                   // Pure Jatim Logo
                   Center(
                     child: Image.asset(
-                      'assets/images/logo_jawa_timur.png',
+                      'assets/images/sapa_bansos.png',
                       width: 120,
                       height: 120,
                       fit: BoxFit.contain,

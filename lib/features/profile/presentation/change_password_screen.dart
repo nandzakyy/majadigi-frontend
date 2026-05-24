@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:majadigi/core/widgets/custom_wave_header.dart';
 import 'package:majadigi/features/profile/presentation/profile_dialogs.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
@@ -21,73 +22,73 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text('Ubah Kata Sandi', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-        backgroundColor: const Color(0xFF0D6EFD),
-        elevation: 0,
-        centerTitle: false,
-        iconTheme: const IconThemeData(color: Colors.white),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          children: [
-            _buildPasswordField(
-              label: "Kata Sandi Lama",
-              controller: oldPassController,
-              hint: "Masukkan kata sandi lama",
-              obscure: _obscureOld,
-              onToggle: () {
-                setState(() {
-                  _obscureOld = !_obscureOld;
-                });
-              },
-            ),
-            const SizedBox(height: 20),
-            _buildPasswordField(
-              label: "Kata Sandi Baru",
-              controller: newPassController,
-              hint: "Masukkan kata sandi baru",
-              obscure: _obscureNew,
-              onToggle: () {
-                setState(() {
-                  _obscureNew = !_obscureNew;
-                });
-              },
-            ),
-            const SizedBox(height: 20),
-            _buildPasswordField(
-              label: "Konfirmasi Kata Sandi Baru",
-              controller: confirmPassController,
-              hint: "Konfirmasi kata sandi baru",
-              obscure: _obscureConfirm,
-              onToggle: () {
-                setState(() {
-                  _obscureConfirm = !_obscureConfirm;
-                });
-              },
-            ),
-            const SizedBox(height: 40),
-            
-            // Simpan Button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0D6EFD),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+      body: Column(
+        children: [
+          const CustomWaveHeader(title: 'Ubah Kata Sandi'),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                children: [
+                  _buildPasswordField(
+                    label: "Kata Sandi Lama",
+                    controller: oldPassController,
+                    hint: "Masukkan kata sandi lama",
+                    obscure: _obscureOld,
+                    onToggle: () {
+                      setState(() {
+                        _obscureOld = !_obscureOld;
+                      });
+                    },
                   ),
-                ),
-                onPressed: () {
-                  showSuccessPopup(context, "Kata sandi berhasil\ndiperbarui!");
-                },
-                child: const Text('Simpan', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                  const SizedBox(height: 20),
+                  _buildPasswordField(
+                    label: "Kata Sandi Baru",
+                    controller: newPassController,
+                    hint: "Masukkan kata sandi baru",
+                    obscure: _obscureNew,
+                    onToggle: () {
+                      setState(() {
+                        _obscureNew = !_obscureNew;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  _buildPasswordField(
+                    label: "Konfirmasi Kata Sandi Baru",
+                    controller: confirmPassController,
+                    hint: "Konfirmasi kata sandi baru",
+                    obscure: _obscureConfirm,
+                    onToggle: () {
+                      setState(() {
+                        _obscureConfirm = !_obscureConfirm;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 40),
+                  
+                  // Simpan Button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF0D6EFD),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () {
+                        showSuccessPopup(context, "Kata sandi berhasil\ndiperbarui!");
+                      },
+                      child: const Text('Simpan', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                    ),
+                  )
+                ],
               ),
-            )
-          ],
-        ),
+            ),
+          ),
+        ],
       ),
     );
   }

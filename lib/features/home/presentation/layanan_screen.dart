@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:majadigi/core/theme/app_colors.dart';
+import 'package:majadigi/core/widgets/custom_wave_header.dart';
 import 'package:majadigi/features/home/model/service_model.dart';
 import 'package:majadigi/features/nomor_darurat/presentation/nomor_darurat_main_screen.dart';
 import 'package:majadigi/features/sapa_bansos/presentation/sapa_bansos_main_screen.dart';
@@ -99,30 +100,9 @@ class _LayananScreenState extends State<LayananScreen> {
     return Scaffold(
       body: Column(
         children: [
-          // Full-bleed header
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-            decoration: const BoxDecoration(
-              color: AppColors.primary,
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(22)),
-            ),
-            child: Row(
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    if (widget.onBack != null) {
-                      widget.onBack!();
-                    } else {
-                      Navigator.pop(context);
-                    }
-                  },
-                  child: const Icon(Icons.arrow_back, color: Colors.white),
-                ),
-                const SizedBox(width: 12),
-                const Expanded(child: Text('Semua Layanan', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold))),
-              ],
-            ),
+          CustomWaveHeader(
+            title: 'Semua Layanan',
+            onBackTap: widget.onBack,
           ),
           Expanded(
             child: SafeArea(

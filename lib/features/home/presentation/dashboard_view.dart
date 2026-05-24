@@ -8,6 +8,7 @@ import 'package:majadigi/core/theme/app_colors.dart';
 import 'package:majadigi/features/auth/presentation/auth_provider.dart';
 import 'package:majadigi/features/auth/presentation/login_screen.dart';
 import 'package:majadigi/features/auth/presentation/select_favorite_services_screen.dart';
+import 'package:majadigi/core/widgets/custom_wave_header.dart';
 
 import 'package:majadigi/features/home/presentation/dynamic_loader_provider.dart';
 import 'package:majadigi/features/home/model/service_model.dart';
@@ -98,41 +99,12 @@ class DashboardView extends StatelessWidget {
     return Column(
       children: [
         // Full-bleed header (no SafeArea) so blue extends to status bar edges
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-          decoration: const BoxDecoration(
-            color: AppColors.primary,
-            borderRadius: BorderRadius.vertical(bottom: Radius.circular(22)),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Halo, ${auth.isLoggedIn ? auth.userName : "Guest"}!',
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      auth.isLoggedIn ? 'Selamat datang di Superapp Majadigi' : 'Silakan login untuk fitur penuh',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.white70,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              if (!auth.isLoggedIn)
-                ElevatedButton(
+        CustomWaveHeader(
+          title: 'Halo, ${auth.isLoggedIn ? auth.userName : "Guest"}!',
+          subtitle: auth.isLoggedIn ? 'Selamat datang di Superapp Majadigi' : 'Silakan login untuk fitur penuh',
+          showBackButton: false,
+          rightWidget: !auth.isLoggedIn
+              ? ElevatedButton(
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -149,17 +121,14 @@ class DashboardView extends StatelessWidget {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                   ),
                   child: const Text('Login'),
-                ),
-              if (auth.isLoggedIn)
-                IconButton(
+                )
+              : IconButton(
                   onPressed: () {
                     auth.logout();
                     dynamicLoader.clearPreferences();
                   },
                   icon: const Icon(Icons.logout, color: Colors.white),
-                )
-            ],
-          ),
+                ),
         ),
         // Content inside SafeArea so it doesn't collide with system UI
         Expanded(

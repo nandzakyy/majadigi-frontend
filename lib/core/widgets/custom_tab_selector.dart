@@ -14,33 +14,41 @@ class CustomTabSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: List.generate(tabs.length, (index) {
-        final active = index == selectedIndex;
-        return GestureDetector(
-          onTap: () => onChanged(index),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 250),
-            curve: Curves.easeInOut,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            decoration: BoxDecoration(
-              color: active ? const Color(0xFFE8F2FF) : Colors.transparent,
-              borderRadius: BorderRadius.circular(24),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      physics: const BouncingScrollPhysics(),
+      child: Row(
+        children: List.generate(tabs.length, (index) {
+          final active = index == selectedIndex;
+          return Padding(
+            padding: EdgeInsets.only(
+              right: index == tabs.length - 1 ? 0 : 8,
             ),
-            child: AnimatedDefaultTextStyle(
-              duration: const Duration(milliseconds: 250),
-              curve: Curves.easeInOut,
-              style: TextStyle(
-                color: active ? const Color(0xFF0D6EFD) : Colors.black,
-                fontWeight: active ? FontWeight.bold : FontWeight.normal,
-                fontSize: 14,
+            child: GestureDetector(
+              onTap: () => onChanged(index),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeInOut,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: active ? const Color(0xFFE8F2FF) : Colors.transparent,
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 250),
+                  curve: Curves.easeInOut,
+                  style: TextStyle(
+                    color: active ? const Color(0xFF0D6EFD) : Colors.black87,
+                    fontWeight: active ? FontWeight.bold : FontWeight.w500,
+                    fontSize: 13,
+                  ),
+                  child: Text(tabs[index]),
+                ),
               ),
-              child: Text(tabs[index]),
             ),
-          ),
-        );
-      }),
+          );
+        }),
+      ),
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:majadigi/core/widgets/custom_wave_header.dart';
 import 'package:majadigi/features/profile/presentation/profile_dialogs.dart';
 
 class PersonalDataScreen extends StatefulWidget {
@@ -21,17 +22,14 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text('Data Diri', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-        backgroundColor: const Color(0xFF0D6EFD),
-        elevation: 0,
-        centerTitle: false,
-        iconTheme: const IconThemeData(color: Colors.white),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          children: [
+      body: Column(
+        children: [
+          const CustomWaveHeader(title: 'Data Diri'),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                children: [
             _buildTextField("Nama Lengkap", nameController, false),
             const SizedBox(height: 16),
             _buildTextField("NIK", nikController, false),
@@ -98,8 +96,11 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
                 child: const Text('Simpan', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
               ),
             )
-          ],
-        ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
