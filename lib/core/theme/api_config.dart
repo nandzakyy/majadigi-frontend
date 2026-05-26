@@ -18,6 +18,11 @@ class ApiConfig {
 
     // Flutter Web cannot use `dart:io` / `Platform.*`.
     if (kIsWeb) {
+      final host = Uri.base.host.toLowerCase();
+      // If the app is served under your domain, route API calls to the public API hostname
+      if (host.endsWith('andikanugra.my.id')) {
+        return 'https://api.andikanugra.my.id';
+      }
       return 'http://localhost:3000';
     }
 
