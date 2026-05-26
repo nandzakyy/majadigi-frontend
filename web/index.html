@@ -20,6 +20,11 @@
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="A new Flutter project.">
 
+  <!-- Social login (Google/Facebook)
+       Replace the placeholder values with your real OAuth app credentials. -->
+  <meta name="google-signin-client_id" content="801188723551-qtko4j5jdlp44ll9isvlro2a6937dk6f.apps.googleusercontent.com">
+  <meta name="facebook_app_id" content="YOUR_FACEBOOK_APP_ID">
+
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -42,5 +47,22 @@
     * https://docs.flutter.dev/platform-integration/web/initialization
   -->
   <script src="flutter_bootstrap.js" async></script>
+
+  <!-- Facebook JS SDK (required for flutter_facebook_auth on Web) -->
+  <script>
+    window.fbAsyncInit = function () {
+      const meta = document.querySelector('meta[name="facebook_app_id"]');
+      const appId = meta && meta.content && meta.content !== 'YOUR_FACEBOOK_APP_ID' ? meta.content : null;
+      if (!appId) return;
+
+      FB.init({
+        appId: appId,
+        cookie: true,
+        xfbml: true,
+        version: 'v19.0'
+      });
+    };
+  </script>
+  <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
 </body>
 </html>

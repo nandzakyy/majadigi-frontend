@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:majadigi/features/home/presentation/home_screen.dart';
+import 'package:majadigi/features/auth/presentation/login_screen.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({Key? key}) : super(key: key);
@@ -132,10 +132,9 @@ class WelcomeScreen extends StatelessWidget {
                 height: 52,
                 child: ElevatedButton(
                   onPressed: () {
-                    // Berpindah ke Home Page
-                    Navigator.pushReplacement(
+                    Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const HomeScreen()),
+                      MaterialPageRoute(builder: (context) => const LoginScreen()),
                     );
                   },
                   style: ElevatedButton.styleFrom(
@@ -146,7 +145,7 @@ class WelcomeScreen extends StatelessWidget {
                     elevation: 0,
                   ),
                   child: const Text(
-                    'Lanjut',
+                    'Masuk',
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.white,

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:majadigi/features/nomor_darurat/data/nomor_darurat_data.dart';
 import '../../../core/widgets/custom_wave_header.dart';
 import 'package:majadigi/core/theme/app_colors.dart';
+import 'package:majadigi/features/nomor_darurat/data/emergency_api.dart';
 
 class NomorDaruratKontakScreen extends StatefulWidget {
   const NomorDaruratKontakScreen({Key? key}) : super(key: key);
@@ -15,21 +15,46 @@ class _NomorDaruratKontakScreenState extends State<NomorDaruratKontakScreen> {
   String? _selectedRegion;
   final TextEditingController _searchController = TextEditingController();
   List<String> _filteredRegions = [];
+  List<String> _allRegions = [];
+  bool _loading = true;
+  String _error = '';
+  final EmergencyApi _api = EmergencyApi();
 
   @override
   void initState() {
     super.initState();
-    _filteredRegions = NomorDaruratData.regions;
     _searchController.addListener(_filterRegions);
+    _loadRegions();
+  }
+
+  Future<void> _loadRegions() async {
+    setState(() {
+      _loading = true;
+      _error = '';
+    });
+
+    try {
+      final regions = await _api.getRegions();
+      setState(() {
+        _allRegions = regions;
+        _filteredRegions = regions;
+        _loading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = '$e';
+        _loading = false;
+      });
+    }
   }
 
   void _filterRegions() {
     final query = _searchController.text.toLowerCase();
     setState(() {
       if (query.isEmpty) {
-        _filteredRegions = NomorDaruratData.regions;
+        _filteredRegions = _allRegions;
       } else {
-        _filteredRegions = NomorDaruratData.regions
+        _filteredRegions = _allRegions
             .where((region) => region.toLowerCase().contains(query))
             .toList();
       }
@@ -136,7 +161,43 @@ class _NomorDaruratKontakScreenState extends State<NomorDaruratKontakScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final contacts = NomorDaruratData.getContactsByRegion(_selectedRegion);
+    if (_loading) {
+      return Scaffold(
+        backgroundColor: Colors.white,
+        body: Column(
+          children: [
+            const CustomWaveHeader(title: 'Kontak Darurat'),
+            const Expanded(child: Center(child: CircularProgressIndicator())),
+          ],
+        ),
+      );
+    }
+
+    if (_error.isNotEmpty) {
+      return Scaffold(
+        backgroundColor: Colors.white,
+        body: Column(
+          children: [
+            const CustomWaveHeader(title: 'Kontak Darurat'),
+            Expanded(
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('Gagal memuat data: $_error', textAlign: TextAlign.center),
+                      const SizedBox(height: 12),
+                      ElevatedButton(onPressed: _loadRegions, child: const Text('Coba lagi')),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -245,17 +306,34 @@ class _NomorDaruratKontakScreenState extends State<NomorDaruratKontakScreen> {
 
           // Contacts List
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              itemCount: contacts.length,
-              itemBuilder: (context, index) {
-                final contact = contacts[index];
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12.0),
-                  child: _buildContactCard(
-                    title: contact['title']!,
-                    number: contact['number']!,
-                  ),
+            child: FutureBuilder<List<EmergencyContact>>(
+              future: _api.getContacts(region: _selectedRegion),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  return Center(child: Text('Gagal memuat kontak: ${snapshot.error}'));
+                }
+
+                final contacts = snapshot.data ?? const [];
+                if (contacts.isEmpty) {
+                  return const Center(child: Text('Tidak ada kontak tersedia'));
+                }
+
+                return ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  itemCount: contacts.length,
+                  itemBuilder: (context, index) {
+                    final contact = contacts[index];
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12.0),
+                      child: _buildContactCard(
+                        title: contact.title,
+                        number: contact.phoneNumber,
+                      ),
+                    );
+                  },
                 );
               },
             ),

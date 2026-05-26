@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../core/widgets/custom_wave_header.dart';
+import '../data/hospital_api.dart';
 
 class DataPasienScreen extends StatefulWidget {
   final String? selectedPoli;
   final String? selectedDate;
   final String namaRS;
+  final int? scheduleId;
+  final String? scheduleDateIso; // YYYY-MM-DD
 
   const DataPasienScreen({
     super.key,
     this.selectedPoli,
     this.selectedDate,
     required this.namaRS,
+    this.scheduleId,
+    this.scheduleDateIso,
   });
 
   @override
@@ -22,6 +27,7 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
   final TextEditingController _nikController = TextEditingController();
   final TextEditingController _namaController = TextEditingController();
   final TextEditingController _tglLahirController = TextEditingController();
+  bool _submitting = false;
 
   bool get _isFormValid {
     return _nikController.text.trim().isNotEmpty &&
@@ -126,10 +132,24 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
                   const SizedBox(height: 8),
                   _buildTextField(
                     _tglLahirController,
-                    "dd/mm/yyyy", 
+                    "dd/mm/yyyy",
                     icon: Icons.calendar_today_outlined,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [DateInputFormatter()],
+                    keyboardType: TextInputType.none,
+                    readOnly: true,
+                    onTap: () async {
+                      final now = DateTime.now();
+                      final picked = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime(now.year - 20, now.month, now.day),
+                        firstDate: DateTime(1900, 1, 1),
+                        lastDate: now,
+                      );
+                      if (picked == null) return;
+                      final dd = picked.day.toString().padLeft(2, '0');
+                      final mm = picked.month.toString().padLeft(2, '0');
+                      final yyyy = picked.year.toString().padLeft(4, '0');
+                      _tglLahirController.text = '$dd/$mm/$yyyy';
+                    },
                   ),
                   const SizedBox(height: 32),
 
@@ -147,25 +167,37 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
                         ),
                         elevation: 0,
                       ),
-                      onPressed: _isFormValid
-                          ? () {
+                      onPressed: (_isFormValid && !_submitting)
+                          ? () async {
                               if (widget.selectedPoli == null || widget.selectedDate == null || widget.selectedPoli!.isEmpty || widget.selectedDate!.isEmpty) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(content: Text('Harap lengkapi data terlebih dahulu')),
                                 );
                                 return;
                               }
+
+                              if (widget.scheduleId != null && widget.scheduleDateIso != null) {
+                                await _submitQueueAndShowDialog(context);
+                                return;
+                              }
+
                               _showAntreanDialog(context);
                             }
                           : null,
-                      child: const Text(
-                        "Ambil Antrean",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
+                      child: _submitting
+                          ? const SizedBox(
+                              height: 18,
+                              width: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
+                            )
+                          : const Text(
+                              "Ambil Antrean",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
                     ),
                   ),
                 ],
@@ -175,6 +207,58 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
         ],
       ),
     );
+  }
+
+  String? _birthDateToIso(String input) {
+    final trimmed = input.trim();
+    if (trimmed.isEmpty) return null;
+    final parts = trimmed.split('/');
+    if (parts.length != 3) return null;
+    final dd = int.tryParse(parts[0]);
+    final mm = int.tryParse(parts[1]);
+    final yyyy = int.tryParse(parts[2]);
+    if (dd == null || mm == null || yyyy == null) return null;
+    if (yyyy < 1900 || yyyy > 2100) return null;
+    if (mm < 1 || mm > 12) return null;
+    if (dd < 1 || dd > 31) return null;
+
+    final yyyyStr = yyyy.toString().padLeft(4, '0');
+    final mmStr = mm.toString().padLeft(2, '0');
+    final ddStr = dd.toString().padLeft(2, '0');
+    final iso = '$yyyyStr-$mmStr-$ddStr';
+
+    final dt = DateTime.tryParse(iso);
+    if (dt == null || dt.year != yyyy || dt.month != mm || dt.day != dd) return null;
+    return iso;
+  }
+
+  Future<void> _submitQueueAndShowDialog(BuildContext context) async {
+    final birthIso = _birthDateToIso(_tglLahirController.text);
+    if (birthIso == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Tanggal lahir tidak valid')));
+      return;
+    }
+
+    setState(() => _submitting = true);
+    try {
+      final queueNumber = "B-${(DateTime.now().millisecondsSinceEpoch % 1000).toString().padLeft(3, '0')}";
+      await HospitalApi().createQueue(
+        scheduleId: widget.scheduleId!,
+        queueNumber: queueNumber,
+        scheduleDate: widget.scheduleDateIso!,
+        patientName: _namaController.text.trim(),
+        patientNik: _nikController.text.trim(),
+        patientBirthDate: birthIso,
+      );
+
+      if (!mounted) return;
+      setState(() => _submitting = false);
+      _showAntreanDialog(context, forcedQueueNumber: queueNumber);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _submitting = false);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal mengambil antrean: $e')));
+    }
   }
 
   Widget _buildLabel(String text) {
@@ -194,11 +278,15 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
     IconData? icon,
     List<TextInputFormatter>? inputFormatters,
     TextInputType? keyboardType,
+    bool readOnly = false,
+    VoidCallback? onTap,
   }) {
     return TextField(
       controller: controller,
       keyboardType: keyboardType,
       inputFormatters: inputFormatters,
+      readOnly: readOnly,
+      onTap: onTap,
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
@@ -222,9 +310,8 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
     );
   }
 
-  void _showAntreanDialog(BuildContext context) {
-    // Generate nomor antrean random (contoh B-004)
-    final String noAntrean = "B-${(DateTime.now().millisecondsSinceEpoch % 1000).toString().padLeft(3, '0')}";
+  void _showAntreanDialog(BuildContext context, {String? forcedQueueNumber}) {
+    final String noAntrean = forcedQueueNumber ?? "B-${(DateTime.now().millisecondsSinceEpoch % 1000).toString().padLeft(3, '0')}";
 
     showDialog(
       context: context,
@@ -342,8 +429,10 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
                           elevation: 0,
                         ),
                         onPressed: () {
-                          Navigator.pop(context);
-                          _showSuccessSnackbar(context);
+                          // close dialog
+                          Navigator.of(context, rootNavigator: true).pop();
+                          // return to RS detail screen
+                          Navigator.of(this.context).popUntil((route) => route.settings.name == '/rs-detail' || route.isFirst);
                         },
                         child: const Text(
                           "Selesai",
@@ -443,29 +532,4 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
   }
 }
 
-class DateInputFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    final text = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
-    
-    if (text.length > 8) {
-      return oldValue; 
-    }
-
-    var newText = '';
-    for (int i = 0; i < text.length; i++) {
-      if (i == 2 || i == 4) {
-        newText += '/';
-      }
-      newText += text[i];
-    }
-
-    return TextEditingValue(
-      text: newText,
-      selection: TextSelection.collapsed(offset: newText.length),
-    );
-  }
-}
+// Manual date typing removed in favor of a date picker to prevent invalid input.

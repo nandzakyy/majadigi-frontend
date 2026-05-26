@@ -10,6 +10,8 @@ import 'package:majadigi/features/profile/presentation/language_screen.dart';
 import 'package:majadigi/features/profile/presentation/about_majadigi_screen.dart';
 import 'package:majadigi/features/profile/presentation/terms_screen.dart';
 import 'package:majadigi/features/profile/presentation/privacy_screen.dart';
+import 'package:majadigi/features/onboarding/presentation/welcome_screen.dart';
+import 'package:majadigi/features/home/presentation/dynamic_loader_provider.dart';
 
 class WaveClipper extends CustomClipper<Path> {
   @override
@@ -36,8 +38,21 @@ class WaveClipper extends CustomClipper<Path> {
   bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  Future<void>? _loadFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFuture = Provider.of<AuthProvider>(context, listen: false).fetchMe().then((_) {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,9 +60,14 @@ class ProfileScreen extends StatelessWidget {
     
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await Provider.of<AuthProvider>(context, listen: false).fetchMe();
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            children: [
             // Header Section
             Stack(
               alignment: Alignment.bottomCenter,
@@ -79,13 +99,45 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             // User Info
-            Text(
-              auth.userName.isNotEmpty ? auth.userName : 'Lois Becker',
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF2C3E50),
-              ),
+            FutureBuilder<void>(
+              future: _loadFuture,
+              builder: (context, snapshot) {
+                final displayName = !auth.isLoggedIn
+                    ? 'Pengunjung'
+                    : ((auth.userFullName?.trim().isNotEmpty ?? false)
+                        ? auth.userFullName!
+                        : (auth.userName.isNotEmpty ? auth.userName : 'Pengguna'));
+
+                return Column(
+                  children: [
+                    Text(
+                      displayName,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF2C3E50),
+                      ),
+                    ),
+                    if (snapshot.connectionState == ConnectionState.waiting)
+                      const Padding(
+                        padding: EdgeInsets.only(top: 6),
+                        child: SizedBox(
+                          height: 16,
+                          width: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      ),
+                    if (auth.errorMessage.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 6),
+                        child: Text(
+                          auth.errorMessage,
+                          style: TextStyle(color: Colors.red.shade700, fontSize: 12),
+                        ),
+                      ),
+                  ],
+                );
+              },
             ),
             const SizedBox(height: 4),
             Text(
@@ -218,10 +270,15 @@ class ProfileScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      onPressed: () {
+                    onPressed: () {
                         showLogoutWarning(context, () {
-                          // TODO: Implement actual logout logic here
-                          Navigator.pushReplacementNamed(context, '/'); // Or auth logic
+                          Provider.of<AuthProvider>(context, listen: false).logout().then((_) {
+                            Provider.of<DynamicLoaderProvider>(context, listen: false).enterGuestMode();
+                          });
+                          Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(builder: (_) => const WelcomeScreen()),
+                            (_) => false,
+                          );
                         });
                       },
                       icon: const Icon(Icons.exit_to_app, color: Colors.red),
@@ -238,7 +295,8 @@ class ProfileScreen extends StatelessWidget {
                 ],
               ),
             ),
-          ],
+            ],
+          ),
         ),
       ),
     );

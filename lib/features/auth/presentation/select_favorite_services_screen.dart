@@ -103,6 +103,7 @@ class _SelectFavoriteServicesScreenState extends State<SelectFavoriteServicesScr
     final validRecommendations = recommended.where((title) => availableTitles.contains(title)).toList();
 
     setState(() {
+      _selectedRegion = region;
       _selectedTitles = validRecommendations.toSet();
     });
 
@@ -214,6 +215,7 @@ class _SelectFavoriteServicesScreenState extends State<SelectFavoriteServicesScr
                                     _selectedRegion = reg;
                                   });
                                   Navigator.pop(context);
+                                  Future.microtask(() => _applyRecommendation(reg));
                                 },
                                 borderRadius: BorderRadius.circular(10),
                                 child: Container(
@@ -354,10 +356,22 @@ class _SelectFavoriteServicesScreenState extends State<SelectFavoriteServicesScr
 
     final auth = Provider.of<AuthProvider>(context, listen: false);
     final userId = auth.isLoggedIn ? (auth.userEmail.isNotEmpty ? auth.userEmail : auth.userName) : 'guest';
-    Provider.of<DynamicLoaderProvider>(context, listen: false).saveUserPreferences(userId, _selectedRegion.isEmpty ? 'All' : _selectedRegion, _selectedTitles.toList());
+    Provider.of<DynamicLoaderProvider>(context, listen: false).saveUserPreferences(
+      userId,
+      _selectedRegion.isEmpty ? 'All' : _selectedRegion,
+      _selectedTitles.toList(),
+    );
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Layanan favorit berhasil disimpan.')),
+    );
+    Navigator.pop(context);
+  }
+
+  void _clearFavorites() {
+    Provider.of<DynamicLoaderProvider>(context, listen: false).clearPreferences();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Layanan favorit dihapus.')),
     );
     Navigator.pop(context);
   }
@@ -387,6 +401,13 @@ class _SelectFavoriteServicesScreenState extends State<SelectFavoriteServicesScr
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
                       child: const Icon(Icons.arrow_back, color: Colors.white),
+                    ),
+                    TextButton(
+                      onPressed: loader.hasSavedPreferences ? _clearFavorites : null,
+                      child: const Text(
+                        'Hapus',
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ],
                 ),

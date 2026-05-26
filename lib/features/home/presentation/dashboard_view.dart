@@ -58,13 +58,23 @@ class DashboardView extends StatelessWidget {
         title.contains('daha husada') ||
         title.contains('karsa husada') ||
         title.contains('haji')) {
+      String normalizeHospitalName(String input) {
+        return input
+            .toLowerCase()
+            .replaceAll('.', '')
+            .replaceAll(RegExp(r'\\bdr\\b'), '')
+            .replaceAll(RegExp(r'\\brsud\\b'), '')
+            .replaceAll(RegExp(r'[^a-z0-9]+'), '')
+            .trim();
+      }
       final rsMatch = RumahSakitData.rsList.firstWhere(
         (rs) {
-          final rsNameNormalized = rs["nama"]!.replaceAll('.', '').toLowerCase();
-          final serviceTitleNormalized = service.title.replaceAll('.', '').toLowerCase();
+          final rsNameNormalized = normalizeHospitalName(rs["nama"]!);
+          final serviceTitleNormalized = normalizeHospitalName(service.title);
           return rsNameNormalized.contains(serviceTitleNormalized) || serviceTitleNormalized.contains(rsNameNormalized);
         },
         orElse: () => {
+          "id": null,
           "nama": service.title,
           "alamat": "Jawa Timur",
           "logoPath": service.assetPath ?? "assets/images/logo_jawa_timur.png",
@@ -73,7 +83,9 @@ class DashboardView extends StatelessWidget {
       Navigator.push(
         context,
         MaterialPageRoute(
+          settings: const RouteSettings(name: '/rs-detail'),
           builder: (context) => RSDetailScreen(
+            hospitalId: rsMatch["id"] as int?,
             nama: rsMatch["nama"]!,
             alamat: rsMatch["alamat"]!,
             logoPath: rsMatch["logoPath"]!,
@@ -127,14 +139,14 @@ class DashboardView extends StatelessWidget {
                   },
                   icon: const Icon(Icons.login_rounded, color: Colors.white, size: 26),
                 )
-              : IconButton(
-                  onPressed: () {
-                    auth.logout();
-                    dynamicLoader.clearPreferences();
-                  },
-                  icon: const Icon(Icons.logout_rounded, color: Colors.white, size: 26),
-                ),
-        ),
+	              : IconButton(
+	                  onPressed: () async {
+	                    await auth.logout();
+	                    dynamicLoader.enterGuestMode();
+	                  },
+	                  icon: const Icon(Icons.logout_rounded, color: Colors.white, size: 26),
+	                ),
+	        ),
         // Content inside SafeArea so it doesn't collide with system UI
         Expanded(
           child: SafeArea(
@@ -171,6 +183,19 @@ class DashboardView extends StatelessWidget {
                         const Text(
                           'Layanan Favorit Anda',
                           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textMain),
+                        ),
+                        const SizedBox(height: 8),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const SelectFavoriteServicesScreen()),
+                              );
+                            },
+                            child: const Text('Edit Favorit'),
+                          ),
                         ),
                         const SizedBox(height: 16),
                         GridView.builder(
@@ -482,6 +507,7 @@ class DashboardView extends StatelessWidget {
   }
 
   Widget _buildFavoriteServiceCard(BuildContext context, ServiceModel service) {
+    final loader = Provider.of<DynamicLoaderProvider>(context, listen: false);
     return Expanded(
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 5),
@@ -504,12 +530,37 @@ class DashboardView extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: Center(
-                  child: service.assetPath != null
-                      ? (service.assetPath!.toLowerCase().endsWith('.svg')
-                          ? SvgPicture.asset(service.assetPath!, width: 24, height: 24)
-                          : Image.asset(service.assetPath!, width: 24, height: 24))
-                      : Icon(service.icon, color: Colors.white, size: 24),
+                child: Stack(
+                  children: [
+                    Center(
+                      child: service.assetPath != null
+                          ? (service.assetPath!.toLowerCase().endsWith('.svg')
+                              ? SvgPicture.asset(service.assetPath!, width: 24, height: 24)
+                              : Image.asset(service.assetPath!, width: 24, height: 24))
+                          : Icon(service.icon, color: Colors.white, size: 24),
+                    ),
+                    Positioned(
+                      top: 6,
+                      left: 6,
+                      child: Material(
+                        color: Colors.white.withOpacity(0.2),
+                        shape: const CircleBorder(),
+                        child: InkWell(
+                          customBorder: const CircleBorder(),
+                          onTap: () {
+                            loader.removeFavoriteTitle(service.title);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Dihapus dari favorit: ${service.title}')),
+                            );
+                          },
+                          child: const Padding(
+                            padding: EdgeInsets.all(6.0),
+                            child: Icon(Icons.close, size: 14, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

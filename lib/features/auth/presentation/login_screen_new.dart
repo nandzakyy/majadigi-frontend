@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:majadigi/features/auth/presentation/auth_provider.dart';
-import 'package:majadigi/features/home/presentation/dynamic_loader_provider.dart';
 import 'package:majadigi/features/auth/presentation/register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -15,10 +14,9 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   bool _isPasswordVisible = false;
   bool _rememberPassword = false;
+  
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-
-  @override
 
   @override
   void dispose() {
@@ -63,10 +61,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             Text(
                               'Bahasa Indonesia',
                               style: TextStyle(color: Colors.white, fontSize: 12),
-                            ),
+                            )
                           ],
                         ),
-                      ),
+                      )
                     ],
                   ),
                   const SizedBox(height: 30),
@@ -92,7 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ],
               ),
             ),
-
+            
             // Bottom Section (White Form Area)
             Expanded(
               child: Container(
@@ -140,7 +138,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       blurRadius: 4,
                                       offset: const Offset(0, 2),
                                     )
-                                  ],
+                                  ]
                                 ),
                                 child: const Center(
                                   child: Text(
@@ -168,7 +166,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 ),
                               ),
-                            ),
+                            )
                           ],
                         ),
                       ),
@@ -267,17 +265,18 @@ class _LoginScreenState extends State<LoginScreen> {
                               'Lupa Password ?',
                               style: TextStyle(color: Color(0xFF0D6EFD), fontSize: 14),
                             ),
-                          ),
+                          )
                         ],
                       ),
                       const SizedBox(height: 16),
 
-                      // Auth API-driven login
+                      // Tombol Masuk dengan error display
                       Consumer<AuthProvider>(
                         builder: (context, authProvider, _) {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
+                              // Error message if any
                               if (authProvider.errorMessage.isNotEmpty)
                                 Container(
                                   padding: const EdgeInsets.all(12),
@@ -295,43 +294,44 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ),
                                   ),
                                 ),
+                              // Login button
                               ElevatedButton(
-                                onPressed: authProvider.isLoading
-                                    ? null
-                                    : () async {
-                                        final email = emailController.text.trim();
-                                        final password = passwordController.text.trim();
+                                onPressed: authProvider.isLoading ? null : () async {
+                                  final email = emailController.text.trim();
+                                  final password = passwordController.text.trim();
 
-                                        if (email.isEmpty) {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            const SnackBar(content: Text('Email tidak boleh kosong')),
-                                          );
-                                          return;
-                                        }
-                                        if (password.isEmpty) {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            const SnackBar(content: Text('Password tidak boleh kosong')),
-                                          );
-                                          return;
-                                        }
+                                  if (email.isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Email tidak boleh kosong')),
+                                    );
+                                    return;
+                                  }
+                                  if (password.isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Password tidak boleh kosong')),
+                                    );
+                                    return;
+                                  }
 
-                                        final success = await authProvider.loginWithEmail(
-                                          email: email,
-                                          password: password,
-                                        );
+                                  final success = await authProvider.loginWithEmail(
+                                    email: email,
+                                    password: password,
+                                  );
 
-                                        if (mounted && success) {
-                                          final userKey = authProvider.userEmail.isNotEmpty ? authProvider.userEmail : authProvider.userName;
-                                          await Provider.of<DynamicLoaderProvider>(context, listen: false).syncFromBackendIfLoggedIn(userKey: userKey);
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(
-                                              content: Text('Login berhasil! Selamat datang ${authProvider.userName}'),
-                                              backgroundColor: Colors.green,
-                                            ),
-                                          );
-                                          Navigator.pop(context);
-                                        }
-                                      },
+                                  if (mounted) {
+                                    if (success) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            'Login berhasil! Selamat datang ${authProvider.userName}',
+                                          ),
+                                          backgroundColor: Colors.green,
+                                        ),
+                                      );
+                                      Navigator.pop(context);
+                                    }
+                                  }
+                                },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF3B71F3),
                                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -379,46 +379,28 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 24),
 
-                      Consumer<AuthProvider>(
-                        builder: (context, authProvider, _) {
-                          return OutlinedButton.icon(
-                            onPressed: authProvider.isLoading
-                                ? null
-                                : () async {
-                                    final success = await authProvider.loginWithGoogle();
-                                    if (!mounted) return;
-                                    if (success) {
-                                      final userKey = authProvider.userEmail.isNotEmpty ? authProvider.userEmail : authProvider.userName;
-                                      await Provider.of<DynamicLoaderProvider>(context, listen: false).syncFromBackendIfLoggedIn(userKey: userKey);
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text('Login Google berhasil! Selamat datang ${authProvider.userName}'),
-                                          backgroundColor: Colors.green,
-                                        ),
-                                      );
-                                      Navigator.pop(context);
-                                    }
-                                  },
-                            icon: Image.asset(
-                              'assets/images/logo_google.png',
-                              width: 24,
-                              height: 24,
-                            ),
-                            label: const Text(
-                              'Masuk dengan Google',
-                              style: TextStyle(color: Colors.black87),
-                            ),
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              side: BorderSide(color: Colors.grey.shade300),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                          );
-                        },
+                      // Tombol Google
+                      OutlinedButton.icon(
+                        onPressed: () {},
+                        icon: Image.asset(
+                          'assets/images/logo_google.png',
+                          width: 24,
+                          height: 24,
+                        ),
+                        label: const Text(
+                          'Masuk dengan Google',
+                          style: TextStyle(color: Colors.black87),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          side: BorderSide(color: Colors.grey.shade300),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 16),
+
                       const SizedBox(height: 30),
                     ],
                   ),

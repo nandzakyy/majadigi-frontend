@@ -38,6 +38,10 @@ dependencies:
   google_fonts: ^8.0.2
   url_launcher: ^6.3.0
   flutter_svg: ^2.1.0
+  http: ^1.1.0
+  shared_preferences: ^2.2.2
+  # Pinned to v6 for working Web `signIn()` flow.
+  google_sign_in: ^6.3.0
 
 dev_dependencies:
   flutter_test:

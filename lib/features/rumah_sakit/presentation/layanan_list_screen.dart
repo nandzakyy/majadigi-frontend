@@ -34,7 +34,9 @@ class LayananListScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
+                      settings: const RouteSettings(name: '/rs-detail'),
                       builder: (_) => RSDetailScreen(
+                        hospitalId: rs["id"] as int?,
                         nama: rs["nama"]!,
                         alamat: rs["alamat"]!,
                         logoPath: rs["logoPath"]!,

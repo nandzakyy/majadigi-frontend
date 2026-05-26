@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:majadigi/core/widgets/custom_wave_header.dart';
 import 'package:majadigi/features/profile/presentation/profile_dialogs.dart';
+import 'package:provider/provider.dart';
+import 'package:majadigi/features/auth/presentation/auth_provider.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({Key? key}) : super(key: key);
@@ -20,6 +22,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final auth = Provider.of<AuthProvider>(context);
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
@@ -78,10 +81,47 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      onPressed: () {
-                        showSuccessPopup(context, "Kata sandi berhasil\ndiperbarui!");
-                      },
-                      child: const Text('Simpan', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                      onPressed: auth.isLoading
+                          ? null
+                          : () async {
+                              final oldPass = oldPassController.text;
+                              final newPass = newPassController.text;
+                              final confirm = confirmPassController.text;
+
+                              if (oldPass.trim().isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Kata sandi lama wajib diisi')));
+                                return;
+                              }
+                              if (newPass.trim().length < 6) {
+                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Kata sandi baru minimal 6 karakter')));
+                                return;
+                              }
+                              if (newPass != confirm) {
+                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Konfirmasi kata sandi tidak sama')));
+                                return;
+                              }
+
+                              final success = await auth.changePassword(oldPassword: oldPass, newPassword: newPass);
+                              if (!mounted) return;
+
+                              if (success) {
+                                oldPassController.clear();
+                                newPassController.clear();
+                                confirmPassController.clear();
+                                showSuccessPopup(context, "Kata sandi berhasil\ndiperbarui!");
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(auth.errorMessage.isNotEmpty ? auth.errorMessage : 'Gagal mengubah kata sandi')),
+                                );
+                              }
+                            },
+                      child: auth.isLoading
+                          ? const SizedBox(
+                              height: 18,
+                              width: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
+                            )
+                          : const Text('Simpan', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
                     ),
                   )
                 ],

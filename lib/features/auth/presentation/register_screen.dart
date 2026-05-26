@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'package:majadigi/features/auth/presentation/login_screen.dart';
+import 'package:majadigi/features/auth/presentation/auth_provider.dart';
+import 'package:majadigi/features/home/presentation/home_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -15,7 +18,45 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _isConfirmPasswordVisible = false;
   String? _selectedGender;
 
-  Widget _buildTextField(String label, String hint, {bool isPassword = false, bool isVisible = false, VoidCallback? onToggle}) {
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _usernameController = TextEditingController();
+
+  final _addressController = TextEditingController();
+  final _nikController = TextEditingController();
+  final _regionController = TextEditingController();
+  final _birthDateController = TextEditingController(); // DD/MM/YYYY (UI), converted to YYYY-MM-DD (API)
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _phoneController.dispose();
+    _emailController.dispose();
+    _usernameController.dispose();
+    _addressController.dispose();
+    _nikController.dispose();
+    _regionController.dispose();
+    _birthDateController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  Widget _buildTextField(
+    String label,
+    String hint, {
+    required TextEditingController controller,
+    Key? fieldKey,
+    TextInputType keyboardType = TextInputType.text,
+    bool isPassword = false,
+    bool isVisible = false,
+    VoidCallback? onToggle,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -25,6 +66,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
         const SizedBox(height: 8),
         TextField(
+          key: fieldKey,
+          controller: controller,
+          keyboardType: keyboardType,
           obscureText: isPassword ? !isVisible : false,
           decoration: InputDecoration(
             hintText: hint,
@@ -51,6 +95,36 @@ class _RegisterScreenState extends State<RegisterScreen> {
         const SizedBox(height: 16),
       ],
     );
+  }
+
+  bool _isValidEmail(String email) {
+    final v = email.trim();
+    return RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(v);
+  }
+
+  String? _genderToApi(String? gender) {
+    if (gender == null) return null;
+    final g = gender.toLowerCase();
+    if (g.contains('laki')) return 'L';
+    if (g.contains('perempuan')) return 'P';
+    return null;
+  }
+
+  String? _birthDateToIso(String input) {
+    final trimmed = input.trim();
+    if (trimmed.isEmpty) return null;
+    final parts = trimmed.split('/');
+    if (parts.length != 3) return null;
+    final dd = int.tryParse(parts[0]);
+    final mm = int.tryParse(parts[1]);
+    final yyyy = int.tryParse(parts[2]);
+    if (dd == null || mm == null || yyyy == null) return null;
+    if (yyyy < 1900 || yyyy > 2100) return null;
+    if (mm < 1 || mm > 12) return null;
+    if (dd < 1 || dd > 31) return null;
+    final mmStr = mm.toString().padLeft(2, '0');
+    final ddStr = dd.toString().padLeft(2, '0');
+    return '$yyyy-$mmStr-$ddStr';
   }
 
   @override
@@ -222,13 +296,68 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                       // Fields Flow
                       if (_currentStep == 1) ...[
-                        _buildTextField('Nama Depan', 'Masukkan nama depan'),
-                        _buildTextField('Nama Belakang', 'Masukkan nama belakang'),
-                        _buildTextField('No HP', 'Masukkan nomor HP'),
-                        _buildTextField('Email', 'Masukkan email'),
+                        _buildTextField(
+                          'Nama Depan',
+                          'Masukkan nama depan',
+                          controller: _firstNameController,
+                          fieldKey: const ValueKey('reg_first_name'),
+                        ),
+                        _buildTextField(
+                          'Nama Belakang',
+                          'Masukkan nama belakang',
+                          controller: _lastNameController,
+                          fieldKey: const ValueKey('reg_last_name'),
+                        ),
+                        _buildTextField(
+                          'No HP',
+                          'Masukkan nomor HP',
+                          controller: _phoneController,
+                          keyboardType: TextInputType.phone,
+                          fieldKey: const ValueKey('reg_phone'),
+                        ),
+                        _buildTextField(
+                          'Email',
+                          'Masukkan email',
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          fieldKey: const ValueKey('reg_email'),
+                        ),
+                        _buildTextField(
+                          'Username',
+                          'Buat username (unik)',
+                          controller: _usernameController,
+                          fieldKey: const ValueKey('reg_username'),
+                        ),
                         const SizedBox(height: 8),
                         ElevatedButton(
                           onPressed: () {
+                            final firstName = _firstNameController.text.trim();
+                            final lastName = _lastNameController.text.trim();
+                            final phone = _phoneController.text.trim();
+                            final email = _emailController.text.trim();
+                            final username = _usernameController.text.trim();
+
+                            if (firstName.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Nama depan tidak boleh kosong')));
+                              return;
+                            }
+                            if (lastName.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Nama belakang tidak boleh kosong')));
+                              return;
+                            }
+                            if (phone.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No HP tidak boleh kosong')));
+                              return;
+                            }
+                            if (email.isEmpty || !_isValidEmail(email)) {
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Email tidak valid')));
+                              return;
+                            }
+                            if (username.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Username tidak boleh kosong')));
+                              return;
+                            }
+
                             setState(() => _currentStep = 2);
                           },
                           style: ElevatedButton.styleFrom(
@@ -241,8 +370,33 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           child: const Text('Selanjutnya', style: TextStyle(color: Colors.white, fontSize: 16)),
                         ),
                       ] else ...[
-                        _buildTextField('Alamat', 'Masukkan alamat lengkap'),
-                        _buildTextField('Tanggal Lahir', 'DD/MM/YYYY'),
+                        _buildTextField(
+                          'Alamat',
+                          'Masukkan alamat lengkap',
+                          controller: _addressController,
+                          keyboardType: TextInputType.streetAddress,
+                          fieldKey: const ValueKey('reg_address'),
+                        ),
+                        _buildTextField(
+                          'NIK (Opsional)',
+                          '16 digit',
+                          controller: _nikController,
+                          keyboardType: TextInputType.number,
+                          fieldKey: const ValueKey('reg_nik'),
+                        ),
+                        _buildTextField(
+                          'Region (Opsional)',
+                          'Contoh: Malang',
+                          controller: _regionController,
+                          fieldKey: const ValueKey('reg_region'),
+                        ),
+                        _buildTextField(
+                          'Tanggal Lahir',
+                          'DD/MM/YYYY',
+                          controller: _birthDateController,
+                          keyboardType: TextInputType.datetime,
+                          fieldKey: const ValueKey('reg_birth_date'),
+                        ),
                         
                         // Dropdown Jenis Kelamin
                         const Text(
@@ -252,7 +406,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         const SizedBox(height: 8),
                         DropdownButtonFormField<String>(
                           value: _selectedGender,
-                          hint: const Text('Pilih Jenis Kelamin'),
+                          isExpanded: true,
+                          hint: const Text(
+                            'Pilih Jenis Kelamin',
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            softWrap: false,
+                          ),
                           decoration: InputDecoration(
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -265,8 +425,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                           ),
                           items: const [
-                            DropdownMenuItem(value: 'Laki - Laki', child: Text('Laki - Laki')),
-                            DropdownMenuItem(value: 'Perempuan', child: Text('Perempuan')),
+                            DropdownMenuItem(
+                              value: 'Laki - Laki',
+                              child: Text(
+                                'Laki - Laki',
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                softWrap: false,
+                              ),
+                            ),
+                            DropdownMenuItem(
+                              value: 'Perempuan',
+                              child: Text(
+                                'Perempuan',
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                softWrap: false,
+                              ),
+                            ),
                           ],
                           onChanged: (val) {
                             setState(() {
@@ -276,33 +452,151 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         const SizedBox(height: 16),
 
-                        _buildTextField('Password', '********', isPassword: true, isVisible: _isPasswordVisible, onToggle: () {
-                          setState(() => _isPasswordVisible = !_isPasswordVisible);
-                        }),
-                        _buildTextField('Ulangi Password', '********', isPassword: true, isVisible: _isConfirmPasswordVisible, onToggle: () {
-                          setState(() => _isConfirmPasswordVisible = !_isConfirmPasswordVisible);
-                        }),
+                        _buildTextField(
+                          'Password',
+                          '********',
+                          controller: _passwordController,
+                          fieldKey: const ValueKey('reg_password'),
+                          isPassword: true,
+                          isVisible: _isPasswordVisible,
+                          onToggle: () {
+                            setState(() => _isPasswordVisible = !_isPasswordVisible);
+                          },
+                        ),
+                        _buildTextField(
+                          'Ulangi Password',
+                          '********',
+                          controller: _confirmPasswordController,
+                          fieldKey: const ValueKey('reg_confirm_password'),
+                          isPassword: true,
+                          isVisible: _isConfirmPasswordVisible,
+                          onToggle: () {
+                            setState(() => _isConfirmPasswordVisible = !_isConfirmPasswordVisible);
+                          },
+                        ),
                         
                         const SizedBox(height: 8),
-                        ElevatedButton(
-                          onPressed: () {
-                            // Register Logic Demo
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Registrasi Berhasil! Silakan Login.')),
-                            );
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(builder: (_) => const LoginScreen()),
+                        Consumer<AuthProvider>(
+                          builder: (context, authProvider, _) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                if (authProvider.errorMessage.isNotEmpty)
+                                  Container(
+                                    padding: const EdgeInsets.all(12),
+                                    margin: const EdgeInsets.only(bottom: 12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.red.shade50,
+                                      border: Border.all(color: Colors.red.shade300),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      authProvider.errorMessage,
+                                      style: TextStyle(color: Colors.red.shade700, fontSize: 13),
+                                    ),
+                                  ),
+                                ElevatedButton(
+                                  onPressed: authProvider.isLoading
+                                      ? null
+                                      : () async {
+                                          final firstName = _firstNameController.text.trim();
+                                          final lastName = _lastNameController.text.trim();
+                                          final phone = _phoneController.text.trim();
+                                          final email = _emailController.text.trim();
+                                          final username = _usernameController.text.trim();
+                                          final address = _addressController.text.trim();
+                                          final nik = _nikController.text.trim();
+                                          final region = _regionController.text.trim();
+                                          final birthIso = _birthDateToIso(_birthDateController.text);
+                                          final genderApi = _genderToApi(_selectedGender);
+                                          final password = _passwordController.text;
+                                          final confirm = _confirmPasswordController.text;
+
+                                          if (address.isEmpty) {
+                                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Alamat tidak boleh kosong')));
+                                            return;
+                                          }
+                                          if (username.isEmpty) {
+                                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Username tidak boleh kosong')));
+                                            return;
+                                          }
+                                          if (nik.isNotEmpty) {
+                                            final digitsOnly = RegExp(r'^[0-9]+$').hasMatch(nik);
+                                            if (!digitsOnly || nik.length != 16) {
+                                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('NIK harus 16 digit angka')));
+                                              return;
+                                            }
+                                          }
+                                          if (birthIso == null) {
+                                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Tanggal lahir tidak valid (DD/MM/YYYY)')));
+                                            return;
+                                          }
+                                          if (genderApi == null) {
+                                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pilih jenis kelamin')));
+                                            return;
+                                          }
+                                          if (password.trim().isEmpty || password.length < 6) {
+                                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Password minimal 6 karakter')));
+                                            return;
+                                          }
+                                          if (password != confirm) {
+                                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ulangi password tidak sama')));
+                                            return;
+                                          }
+
+                                          final fullName = '$firstName $lastName'.trim();
+
+                                          final success = await authProvider.registerUser(
+                                            email: email,
+                                            username: username,
+                                            password: password,
+                                            firstName: firstName,
+                                            lastName: lastName,
+                                            fullName: fullName,
+                                            phone: phone,
+                                            nik: nik.isEmpty ? null : nik,
+                                            region: region.isEmpty ? null : region,
+                                            address: address,
+                                            gender: genderApi,
+                                            birthDate: birthIso,
+                                          );
+
+                                          if (!mounted) return;
+                                          if (success) {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              const SnackBar(
+                                                content: Text('Registrasi berhasil!'),
+                                                backgroundColor: Colors.green,
+                                              ),
+                                            );
+                                            Navigator.pushAndRemoveUntil(
+                                              context,
+                                              MaterialPageRoute(builder: (_) => const HomeScreen()),
+                                              (_) => false,
+                                            );
+                                          }
+                                        },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF3B71F3),
+                                    padding: const EdgeInsets.symmetric(vertical: 16),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  child: authProvider.isLoading
+                                      ? const SizedBox(
+                                          height: 20,
+                                          width: 20,
+                                          child: CircularProgressIndicator(
+                                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                      : const Text('Daftar', style: TextStyle(color: Colors.white, fontSize: 16)),
+                                ),
+                              ],
                             );
                           },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF3B71F3),
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: const Text('Daftar', style: TextStyle(color: Colors.white, fontSize: 16)),
                         ),
                       ],
                       const SizedBox(height: 30),

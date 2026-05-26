@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'package:majadigi/core/theme/app_colors.dart';
+import 'package:majadigi/features/auth/presentation/auth_provider.dart';
 import 'package:majadigi/features/profile/presentation/profile_screen.dart';
 import 'package:majadigi/features/home/presentation/dashboard_view.dart';
 import 'package:majadigi/features/home/presentation/layanan_screen.dart';
+import 'package:majadigi/features/onboarding/presentation/welcome_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -33,6 +36,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final auth = Provider.of<AuthProvider>(context);
+    if (!auth.isLoggedIn) {
+      return const WelcomeScreen();
+    }
     return Scaffold(
       extendBody: true,
       backgroundColor: Colors.white,

@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
 class RumahSakitData {
-  static final List<Map<String, String>> rsList = [
-    {"nama": "RSUD Dr Soetomo", "alamat": "Surabaya", "logoPath": "assets/images/rsud_soetomo.png"},
-    {"nama": "RSUD Karsa Husada", "alamat": "Malang", "logoPath": "assets/images/rsud_karsa.png"},
-    {"nama": "RSUD Dr Saiful Anwar", "alamat": "Malang", "logoPath": "assets/images/rsud_saiful.png"},
-    {"nama": "RSUD Haji Prov. Jatim", "alamat": "Surabaya", "logoPath": "assets/images/rsud_haji.png"},
-    {"nama": "RSUD Daha Husada", "alamat": "Kediri", "logoPath": "assets/images/rsud_daha.png"},
+  static final List<Map<String, dynamic>> rsList = [
+    {"id": 1, "nama": "RSUD Dr Soetomo", "alamat": "Surabaya", "logoPath": "assets/images/rsud_soetomo.png"},
+    {"id": 4, "nama": "RSUD Karsa Husada", "alamat": "Batu", "logoPath": "assets/images/rsud_karsa.png"},
+    {"id": 2, "nama": "RSUD Dr Saiful Anwar", "alamat": "Malang", "logoPath": "assets/images/rsud_saiful.png"},
+    {"id": 3, "nama": "RSUD Haji Prov. Jatim", "alamat": "Surabaya", "logoPath": "assets/images/rsud_haji.png"},
+    {"id": 5, "nama": "RSUD Daha Husada", "alamat": "Kediri", "logoPath": "assets/images/rsud_daha.png"},
+    {"id": 6, "nama": "RSUD Dr Harjono", "alamat": "Ponorogo", "logoPath": "assets/images/logo_jawa_timur.png"},
   ];
 
   static final Map<String, Map<String, String>> rsDetailData = const {

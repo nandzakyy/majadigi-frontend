@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:majadigi/features/home/model/service_model.dart';
 import 'package:majadigi/features/home/model/user_preference_model.dart';
+import 'package:majadigi/core/theme/favorites_service.dart';
+import 'package:majadigi/core/theme/api_service.dart';
+import 'package:majadigi/core/theme/api_config.dart';
 
 class DynamicLoaderProvider extends ChangeNotifier {
   // Mock Database Layer: List of all available services
@@ -33,17 +36,96 @@ class DynamicLoaderProvider extends ChangeNotifier {
 
 
   DynamicLoaderProvider() {
-    // Initial fetch for guest/unauthenticated user
+    enterGuestMode();
+  }
+
+  Future<void> _loadPersistedPreferencesForUser(String userKey) async {
+    final persisted = await FavoritesService.loadForUser(userKey: userKey);
+    if (persisted != null && persisted.titles.isNotEmpty) {
+      _userPreference = UserPreferenceModel(
+        userId: userKey,
+        region: persisted.region.isEmpty ? 'All' : persisted.region,
+        preferredServices: persisted.titles,
+      );
+    }
     _generateDashboard();
+  }
+
+  void enterGuestMode() {
+    _userPreference = null;
+    _generateDashboard();
+    // Only load guest favorites if you later decide to support them.
+  }
+
+  Future<void> syncFromBackendIfLoggedIn({required String userKey}) async {
+    try {
+      final response = await ApiService().get(ApiConfig.usersFavoriteServices, authenticated: true);
+      final data = response is Map<String, dynamic> ? response['data'] : null;
+      if (data is! Map) return;
+      final region = (data['region'] ?? 'All').toString();
+      final favorites = data['favorites'];
+      if (favorites is! List) return;
+      final titles = favorites.map((e) => '$e').toList();
+
+      if (titles.isEmpty) {
+        await _loadPersistedPreferencesForUser(userKey);
+        return;
+      }
+      _userPreference = UserPreferenceModel(userId: userKey, region: region.isEmpty ? 'All' : region, preferredServices: titles);
+      await FavoritesService.saveForUser(userKey: userKey, region: region.isEmpty ? 'All' : region, titles: titles);
+      _generateDashboard();
+    } catch (_) {
+      await _loadPersistedPreferencesForUser(userKey);
+    }
   }
 
   void saveUserPreferences(String userId, String region, List<String> prefs) {
     _userPreference = UserPreferenceModel(userId: userId, region: region, preferredServices: prefs);
+    FavoritesService.saveForUser(userKey: userId, region: region, titles: prefs);
+    if (userId != 'guest') {
+      ApiService()
+          .put(
+            ApiConfig.usersFavoriteServices,
+            authenticated: true,
+            body: {
+              'region': region,
+              'favorites': prefs,
+            },
+          )
+          .catchError((_) {});
+    }
+    _generateDashboard();
+  }
+
+  void addFavoriteTitle(String title, {String region = 'All'}) {
+    final current = _userPreference?.preferredServices ?? <String>[];
+    if (current.contains(title)) return;
+    if (current.length >= 5) return;
+
+    final updated = [...current, title];
+    final effectiveRegion = _userPreference?.region ?? region;
+    _userPreference = UserPreferenceModel(userId: _userPreference?.userId ?? 'local', region: effectiveRegion, preferredServices: updated);
+    FavoritesService.saveForUser(userKey: _userPreference?.userId ?? 'local', region: effectiveRegion, titles: updated);
     _generateDashboard();
   }
   
   void clearPreferences() {
+    final key = _userPreference?.userId ?? 'guest';
     _userPreference = null;
+    FavoritesService.clearForUser(userKey: key);
+    _generateDashboard();
+  }
+
+  void removeFavoriteTitle(String title) {
+    final current = _userPreference?.preferredServices ?? <String>[];
+    final updated = current.where((t) => t != title).toList();
+    if (updated.isEmpty) {
+      clearPreferences();
+      return;
+    }
+    final region = _userPreference?.region ?? 'All';
+    _userPreference = UserPreferenceModel(userId: _userPreference?.userId ?? 'local', region: region, preferredServices: updated);
+    FavoritesService.saveForUser(userKey: _userPreference?.userId ?? 'local', region: region, titles: updated);
     _generateDashboard();
   }
 
@@ -57,18 +139,15 @@ class DynamicLoaderProvider extends ChangeNotifier {
       return;
     }
 
-    String region = _userPreference!.region;
-    List<String> selectedTitles = _userPreference!.preferredServices;
+    final selectedTitles = _userPreference!.preferredServices;
 
-    // 2. Take services that match the selected bookmark titles (always include chosen favorites)
-    final selectedServices = _allServices.where((s) => selectedTitles.contains(s.title)).toList();
-
-    // Show only up to 5 bookmarked services; fill with defaults if needed.
-    _personalizedServices = selectedServices.take(5).toList();
-    if (_personalizedServices.length < 5) {
-      final others = _allServices.where((s) => !_personalizedServices.contains(s) && (s.availableRegions.contains('All') || s.availableRegions.contains(region))).take(5 - _personalizedServices.length);
-      _personalizedServices.addAll(others);
-    }
+    // 2. Show exactly what user selected (preserve selection order).
+    _personalizedServices = selectedTitles
+        .map((title) => _allServices.firstWhere(
+              (s) => s.title == title,
+              orElse: () => ServiceModel(title: title, icon: Icons.star, category: '', availableRegions: const ['All']),
+            ))
+        .toList();
 
     notifyListeners();
   }

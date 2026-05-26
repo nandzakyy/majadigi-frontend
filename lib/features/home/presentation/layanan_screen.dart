@@ -60,13 +60,23 @@ class _LayananScreenState extends State<LayananScreen> {
         title.contains('daha husada') ||
         title.contains('karsa husada') ||
         title.contains('haji')) {
+      String normalizeHospitalName(String input) {
+        return input
+            .toLowerCase()
+            .replaceAll('.', '')
+            .replaceAll(RegExp(r'\\bdr\\b'), '')
+            .replaceAll(RegExp(r'\\brsud\\b'), '')
+            .replaceAll(RegExp(r'[^a-z0-9]+'), '')
+            .trim();
+      }
       final rsMatch = RumahSakitData.rsList.firstWhere(
         (rs) {
-          final rsNameNormalized = rs["nama"]!.replaceAll('.', '').toLowerCase();
-          final serviceTitleNormalized = service.title.replaceAll('.', '').toLowerCase();
+          final rsNameNormalized = normalizeHospitalName(rs["nama"]!);
+          final serviceTitleNormalized = normalizeHospitalName(service.title);
           return rsNameNormalized.contains(serviceTitleNormalized) || serviceTitleNormalized.contains(rsNameNormalized);
         },
         orElse: () => {
+          "id": null,
           "nama": service.title,
           "alamat": "Jawa Timur",
           "logoPath": service.assetPath ?? "assets/images/logo_jawa_timur.png",
@@ -75,7 +85,9 @@ class _LayananScreenState extends State<LayananScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
+          settings: const RouteSettings(name: '/rs-detail'),
           builder: (context) => RSDetailScreen(
+            hospitalId: rsMatch["id"] as int?,
             nama: rsMatch["nama"]!,
             alamat: rsMatch["alamat"]!,
             logoPath: rsMatch["logoPath"]!,
