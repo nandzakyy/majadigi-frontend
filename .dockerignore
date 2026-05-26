@@ -1,0 +1,14 @@
+.dart_tool
+.git
+.idea
+.vscode
+android
+build
+ios
+linux
+macos
+test
+windows
+Dockerfile
+docker-compose.yml
+README.md

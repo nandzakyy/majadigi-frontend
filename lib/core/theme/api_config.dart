@@ -3,10 +3,19 @@
 import 'package:flutter/foundation.dart';
 
 class ApiConfig {
+  static const String _configuredBaseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: '',
+  );
+
   /// Get base URL based on platform
   /// Android Emulator: http://10.0.2.2:3000
   /// Physical Device/Web: http://localhost:3000
   static String get baseUrl {
+    if (_configuredBaseUrl.isNotEmpty) {
+      return _configuredBaseUrl;
+    }
+
     // Flutter Web cannot use `dart:io` / `Platform.*`.
     if (kIsWeb) {
       return 'http://localhost:3000';
