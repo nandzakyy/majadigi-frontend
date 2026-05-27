@@ -1,10 +1,11 @@
 import 'dart:convert';
-import 'dart:html' as html;
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../core/widgets/custom_wave_header.dart';
+import '../../../core/utils/file_download/file_download.dart';
 import '../data/hospital_api.dart';
 
 class DataPasienScreen extends StatefulWidget {
@@ -68,10 +69,7 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          CustomWaveHeader(
-            title: "Data Pasien",
-            onSavePressed: () {},
-          ),
+          CustomWaveHeader(title: "Data Pasien", onSavePressed: () {}),
 
           Expanded(
             child: SingleChildScrollView(
@@ -94,10 +92,7 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
                         children: [
                           const Text(
                             "Isi data pasien",
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey,
-                            ),
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
                           ),
                           const SizedBox(width: 4),
                           Icon(
@@ -128,10 +123,7 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
 
                   _buildLabel("Nama"),
                   const SizedBox(height: 8),
-                  _buildTextField(
-                    _namaController,
-                    "Masukkan Nama Lengkap",
-                  ),
+                  _buildTextField(_namaController, "Masukkan Nama Lengkap"),
 
                   const SizedBox(height: 24),
 
@@ -275,9 +267,7 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
 
     if (birthIso == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Tanggal lahir tidak valid'),
-        ),
+        const SnackBar(content: Text('Tanggal lahir tidak valid')),
       );
       return;
     }
@@ -301,20 +291,15 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
 
       setState(() => _submitting = false);
 
-      _showAntreanDialog(
-        context,
-        forcedQueueNumber: queueNumber,
-      );
+      _showAntreanDialog(context, forcedQueueNumber: queueNumber);
     } catch (e) {
       if (!mounted) return;
 
       setState(() => _submitting = false);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Gagal mengambil antrean: $e'),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Gagal mengambil antrean: $e')));
     }
   }
 
@@ -332,29 +317,11 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
         date: date,
       );
 
-      final bytes = utf8.encode(svgContent);
-
-      final blob = html.Blob(
-        [bytes],
-        'image/svg+xml;charset=utf-8',
-      );
-
-      final objectUrl = html.Url.createObjectUrlFromBlob(blob);
-
-      final anchor = html.AnchorElement(href: objectUrl)
-        ..setAttribute('download', 'tiket-antrean-$queueNumber.svg')
-        ..style.display = 'none';
-
-      html.document.body?.append(anchor);
-
-      anchor.click();
-
-      Future.delayed(
-        const Duration(seconds: 1),
-        () {
-          anchor.remove();
-          html.Url.revokeObjectUrl(objectUrl);
-        },
+      final bytes = Uint8List.fromList(utf8.encode(svgContent));
+      await saveBytesAsFile(
+        bytes: bytes,
+        filename: 'tiket-antrean-$queueNumber.svg',
+        mimeType: 'image/svg+xml;charset=utf-8',
       );
 
       if (mounted) {
@@ -365,11 +332,9 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
       debugPrint('$stackTrace');
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Gagal mengunduh tiket: $e'),
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Gagal mengunduh tiket: $e')));
       }
     }
   }
@@ -499,10 +464,7 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
       onTap: onTap,
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: const TextStyle(
-          color: Colors.grey,
-          fontSize: 14,
-        ),
+        hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
         filled: true,
         fillColor: const Color(0xFFFAFAFA),
         contentPadding: const EdgeInsets.symmetric(
@@ -510,40 +472,27 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
           vertical: 14,
         ),
         suffixIcon: icon != null
-            ? Icon(
-                icon,
-                color: Colors.grey,
-                size: 20,
-              )
+            ? Icon(icon, color: Colors.grey, size: 20)
             : null,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: Colors.grey.shade300,
-          ),
+          borderSide: BorderSide(color: Colors.grey.shade300),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: Colors.grey.shade300,
-          ),
+          borderSide: BorderSide(color: Colors.grey.shade300),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(
-            color: Color(0xFF0D6EFD),
-            width: 1.5,
-          ),
+          borderSide: const BorderSide(color: Color(0xFF0D6EFD), width: 1.5),
         ),
       ),
     );
   }
 
-  void _showAntreanDialog(
-    BuildContext context, {
-    String? forcedQueueNumber,
-  }) {
-    final String noAntrean = forcedQueueNumber ??
+  void _showAntreanDialog(BuildContext context, {String? forcedQueueNumber}) {
+    final String noAntrean =
+        forcedQueueNumber ??
         "B-${(DateTime.now().millisecondsSinceEpoch % 1000).toString().padLeft(3, '0')}";
 
     showDialog(
@@ -637,10 +586,7 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
                     const Text(
                       "Harap datang sebelum nomor\ndipanggil",
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.black54,
-                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.black54),
                     ),
                   ],
                 ),
@@ -731,20 +677,15 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
         return Flex(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           direction: Axis.horizontal,
-          children: List.generate(
-            dashCount,
-            (_) {
-              return const SizedBox(
-                width: dashWidth,
-                height: dashHeight,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: Colors.grey,
-                  ),
-                ),
-              );
-            },
-          ),
+          children: List.generate(dashCount, (_) {
+            return const SizedBox(
+              width: dashWidth,
+              height: dashHeight,
+              child: DecoratedBox(
+                decoration: BoxDecoration(color: Colors.grey),
+              ),
+            );
+          }),
         );
       },
     );
@@ -759,9 +700,7 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
         margin: const EdgeInsets.all(24),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(
-            color: Color(0xFFE5EFFF),
-          ),
+          side: const BorderSide(color: Color(0xFFE5EFFF)),
         ),
         content: Row(
           children: [
@@ -771,11 +710,7 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
                 color: const Color(0xFF0D6EFD),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(
-                Icons.check,
-                color: Colors.white,
-                size: 24,
-              ),
+              child: const Icon(Icons.check, color: Colors.white, size: 24),
             ),
 
             const SizedBox(width: 16),
@@ -796,10 +731,7 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
                   SizedBox(height: 4),
                   Text(
                     "Nomor antrean berhasil diunduh.",
-                    style: TextStyle(
-                      color: Color(0xFF0D6EFD),
-                      fontSize: 14,
-                    ),
+                    style: TextStyle(color: Color(0xFF0D6EFD), fontSize: 14),
                   ),
                 ],
               ),
