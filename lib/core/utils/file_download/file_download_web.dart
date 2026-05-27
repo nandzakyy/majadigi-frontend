@@ -12,13 +12,17 @@ Future<void> saveBytesAsFileImpl({
 
   final anchor = html.AnchorElement(href: objectUrl)
     ..setAttribute('download', filename)
-    ..style.display = 'none';
+    ..setAttribute('rel', 'noopener')
+    ..target = '_self'
+    ..style.position = 'fixed'
+    ..style.left = '-9999px'
+    ..style.top = '-9999px';
 
   html.document.body?.append(anchor);
   anchor.click();
 
   // Give the browser a tick to start the download before cleanup.
-  await Future<void>.delayed(const Duration(milliseconds: 250));
+  await Future<void>.delayed(const Duration(seconds: 2));
   anchor.remove();
   html.Url.revokeObjectUrl(objectUrl);
 }
