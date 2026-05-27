@@ -9,7 +9,7 @@ class AuthProvider extends ChangeNotifier {
   bool _isLoggedIn = false;
   bool _isLoading = false;
   String _errorMessage = '';
-  
+
   // User data
   int? _userId;
   String _userName = "Guest";
@@ -31,7 +31,10 @@ class AuthProvider extends ChangeNotifier {
 
   final ApiService _apiService = ApiService();
 
-  Future<void> _applyAuthSession({required UserModel user, required String token}) async {
+  Future<void> _applyAuthSession({
+    required UserModel user,
+    required String token,
+  }) async {
     await TokenService.saveToken(token);
     await TokenService.saveUserData(
       id: user.id,
@@ -82,7 +85,10 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await _apiService.get(ApiConfig.usersMe, authenticated: true);
+      final response = await _apiService.get(
+        ApiConfig.usersMe,
+        authenticated: true,
+      );
       final data = response is Map<String, dynamic> ? response['data'] : null;
       if (data is! Map<String, dynamic>) {
         throw ApiException('Invalid profile response', 0);
@@ -188,7 +194,10 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> changePassword({required String oldPassword, required String newPassword}) async {
+  Future<bool> changePassword({
+    required String oldPassword,
+    required String newPassword,
+  }) async {
     _isLoading = true;
     _errorMessage = '';
     notifyListeners();
@@ -197,10 +206,7 @@ class AuthProvider extends ChangeNotifier {
       await _apiService.put(
         ApiConfig.authChangePassword,
         authenticated: true,
-        body: {
-          'oldPassword': oldPassword,
-          'newPassword': newPassword,
-        },
+        body: {'oldPassword': oldPassword, 'newPassword': newPassword},
       );
 
       _isLoading = false;
@@ -220,7 +226,10 @@ class AuthProvider extends ChangeNotifier {
   }
 
   /// Login with email and password
-  Future<bool> loginWithEmail({required String email, required String password}) async {
+  Future<bool> loginWithEmail({
+    required String email,
+    required String password,
+  }) async {
     _isLoading = true;
     _errorMessage = '';
     notifyListeners();
@@ -235,8 +244,13 @@ class AuthProvider extends ChangeNotifier {
 
       final loginResponse = LoginResponse.fromJson(response);
 
-      if (loginResponse.success && loginResponse.token != null && loginResponse.user != null) {
-        await _applyAuthSession(user: loginResponse.user!, token: loginResponse.token!);
+      if (loginResponse.success &&
+          loginResponse.token != null &&
+          loginResponse.user != null) {
+        await _applyAuthSession(
+          user: loginResponse.user!,
+          token: loginResponse.token!,
+        );
         _isLoading = false;
         notifyListeners();
 
@@ -303,8 +317,13 @@ class AuthProvider extends ChangeNotifier {
 
       final registerResponse = RegisterResponse.fromJson(response);
 
-      if (registerResponse.success && registerResponse.token != null && registerResponse.user != null) {
-        await _applyAuthSession(user: registerResponse.user!, token: registerResponse.token!);
+      if (registerResponse.success &&
+          registerResponse.token != null &&
+          registerResponse.user != null) {
+        await _applyAuthSession(
+          user: registerResponse.user!,
+          token: registerResponse.token!,
+        );
         _isLoading = false;
         notifyListeners();
 
@@ -350,8 +369,13 @@ class AuthProvider extends ChangeNotifier {
       );
 
       final loginResponse = LoginResponse.fromJson(response);
-      if (loginResponse.success && loginResponse.token != null && loginResponse.user != null) {
-        await _applyAuthSession(user: loginResponse.user!, token: loginResponse.token!);
+      if (loginResponse.success &&
+          loginResponse.token != null &&
+          loginResponse.user != null) {
+        await _applyAuthSession(
+          user: loginResponse.user!,
+          token: loginResponse.token!,
+        );
         _isLoading = false;
         notifyListeners();
         return true;
@@ -376,7 +400,16 @@ class AuthProvider extends ChangeNotifier {
 
   Future<bool> loginWithGoogle() async {
     try {
-      final googleSignIn = GoogleSignIn(scopes: const ['email', 'profile']);
+      const googleWebClientId = String.fromEnvironment(
+        'GOOGLE_WEB_CLIENT_ID',
+        defaultValue:
+            '801188723551-qtko4j5jdlp44ll9isvlro2a6937dk6f.apps.googleusercontent.com',
+      );
+
+      final googleSignIn = GoogleSignIn(
+        scopes: const ['email', 'profile'],
+        serverClientId: googleWebClientId,
+      );
       final account = await googleSignIn.signIn();
       if (account == null) {
         _errorMessage = 'Google sign-in dibatalkan';
@@ -391,7 +424,11 @@ class AuthProvider extends ChangeNotifier {
         return false;
       }
 
-      return socialLogin(provider: 'google', idToken: auth.idToken, accessToken: auth.accessToken);
+      return socialLogin(
+        provider: 'google',
+        idToken: auth.idToken,
+        accessToken: auth.accessToken,
+      );
     } catch (e) {
       _errorMessage = 'Google sign-in gagal: $e';
       notifyListeners();
@@ -408,10 +445,7 @@ class AuthProvider extends ChangeNotifier {
       // Call logout endpoint if token exists
       final hasToken = await TokenService.hasToken();
       if (hasToken) {
-        await _apiService.post(
-          ApiConfig.authLogout,
-          authenticated: true,
-        );
+        await _apiService.post(ApiConfig.authLogout, authenticated: true);
       }
     } catch (e) {
       print('Logout API error: $e');
