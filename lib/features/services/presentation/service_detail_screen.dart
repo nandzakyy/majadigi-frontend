@@ -467,7 +467,7 @@ class ServiceDetailScreen extends StatelessWidget {
     } else if (service.title.contains('Sidita')) {
       return 'https://dinsos.jatimprov.go.id/';
     } else if (service.title.contains('Haji')) {
-      return 'https://rsuhaji.jatimprov.go.id/';
+      return 'https://app.rsuhaji.jatimprov.go.id/online/';
     }
     return 'https://jatimprov.go.id/';
   }

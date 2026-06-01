@@ -303,7 +303,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       leading: Icon(icon, color: Colors.black87),
       title: Text(
         title,
-        style: const TextStyle(fontSize: 14, color: Colors.black87, fontWeight: FontWeight.w500),
+        style: const TextStyle(fontSize: 14, color: Colors.black87, fontWeight: FontWeight.w400),
       ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,

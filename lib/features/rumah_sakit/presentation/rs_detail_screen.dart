@@ -64,7 +64,7 @@ class RSDetailScreen extends StatelessWidget {
 
           final data = RumahSakitData.rsDetailData[nama] ?? {};
           final activeDeskripsi = data["deskripsi"] ?? deskripsi;
-          final activeLink = data["link"] ?? linkLayanan;
+          final activeLink = _getHospitalUrl(nama, data["link"] ?? linkLayanan);
           final activeAlamat = data["alamat"] ?? alamat;
           final activeJam = data["jam"] ?? jamOperasional;
 
@@ -92,7 +92,7 @@ class RSDetailScreen extends StatelessWidget {
 
             final hospital = snapshot.data;
             final activeDeskripsi = hospital?.description ?? deskripsi;
-            final activeLink = hospital?.websiteUrl ?? linkLayanan;
+            final activeLink = _getHospitalUrl(nama, hospital?.websiteUrl ?? linkLayanan);
             final activeAlamat = hospital?.address ?? alamat;
             final activeJam = jamOperasional;
             final resolvedHospitalName = hospital?.name?.trim().isNotEmpty == true ? hospital!.name : nama;
@@ -337,6 +337,22 @@ class RSDetailScreen extends StatelessWidget {
         );
       },
     );
+  }
+
+  String _getHospitalUrl(String name, String fallbackLink) {
+    final cleanName = name.toLowerCase();
+    if (cleanName.contains('soetomo')) {
+      return 'https://rsudrsoetomo.jatimprov.go.id/';
+    } else if (cleanName.contains('daha husada')) {
+      return 'https://rsuddahahusada.jatimprov.go.id/';
+    } else if (cleanName.contains('haji')) {
+      return 'https://app.rsuhaji.jatimprov.go.id/online/';
+    } else if (cleanName.contains('saiful anwar')) {
+      return 'https://rsusaifulanwar.jatimprov.go.id/v2/';
+    } else if (cleanName.contains('karsa husada')) {
+      return 'https://rsukarsahusadabatu.jatimprov.go.id/';
+    }
+    return fallbackLink;
   }
 }
 
