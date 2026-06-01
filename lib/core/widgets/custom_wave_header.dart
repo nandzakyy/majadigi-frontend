@@ -121,42 +121,39 @@ class CustomWaveHeader extends StatelessWidget {
               ),
             ),
           ),
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            if (subtitle != null) ...[
-              const SizedBox(height: 2),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 56.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
               Text(
-                subtitle!,
+                title,
+                textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-            ],
-          ],
-        ),
-        if (rightWidget != null || onSavePressed != null)
-          Align(
-            alignment: Alignment.centerRight,
-            child: rightWidget ??
-                GestureDetector(
-                  onTap: onSavePressed,
-                  child: SvgPicture.asset(
-                    'assets/vectors/save_icon.svg',
-                    width: 40,
-                    height: 40,
+              if (subtitle != null) ...[
+                const SizedBox(height: 2),
+                Text(
+                  subtitle!,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
+              ],
+            ],
+          ),
+        ),
+        if (rightWidget != null)
+          Align(
+            alignment: Alignment.centerRight,
+            child: rightWidget,
           ),
       ],
     );
@@ -217,16 +214,8 @@ class CustomWaveHeader extends StatelessWidget {
             ],
           ),
         ),
-        if (rightWidget != null || onSavePressed != null)
-          rightWidget ??
-              GestureDetector(
-                onTap: onSavePressed,
-                child: SvgPicture.asset(
-                  'assets/vectors/save_icon.svg',
-                  width: 40,
-                  height: 40,
-                ),
-              ),
+        if (rightWidget != null)
+          rightWidget!,
       ],
     );
   }

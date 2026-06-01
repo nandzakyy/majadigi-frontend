@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:majadigi/core/widgets/custom_wave_header.dart';
 import 'package:majadigi/features/profile/presentation/profile_dialogs.dart';
 import 'package:provider/provider.dart';
@@ -110,7 +111,16 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
                 children: [
             _buildTextField("Nama Lengkap", nameController, false),
             const SizedBox(height: 16),
-            _buildTextField("NIK", nikController, false),
+            _buildTextField(
+              "NIK",
+              nikController,
+              false,
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(16),
+              ],
+            ),
             const SizedBox(height: 16),
             _buildTextField("Email", emailController, false, readOnly: true),
             const SizedBox(height: 16),
@@ -193,9 +203,12 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
                     return;
                   }
                   if (nik.isNotEmpty) {
-                    final digitsOnly = RegExp(r'^[0-9]+$').hasMatch(nik);
-                    if (!digitsOnly || nik.length != 16) {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('NIK harus 16 digit angka')));
+                    if (!RegExp(r'^[0-9]+$').hasMatch(nik)) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('NIK harus berupa angka saja')));
+                      return;
+                    }
+                    if (nik.length != 16) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('NIK harus tepat 16 digit')));
                       return;
                     }
                   }
@@ -251,7 +264,14 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller, bool isMultiline, {bool readOnly = false}) {
+  Widget _buildTextField(
+    String label,
+    TextEditingController controller,
+    bool isMultiline, {
+    bool readOnly = false,
+    List<TextInputFormatter>? inputFormatters,
+    TextInputType? keyboardType,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -262,6 +282,8 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
           readOnly: readOnly,
           maxLines: isMultiline ? 3 : 1,
           style: const TextStyle(fontSize: 14, color: Colors.black87),
+          keyboardType: keyboardType,
+          inputFormatters: inputFormatters,
           decoration: _inputDecoration(),
         ),
       ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'package:majadigi/features/auth/presentation/login_screen.dart';
@@ -56,6 +57,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
     bool isPassword = false,
     bool isVisible = false,
     VoidCallback? onToggle,
+    bool readOnly = false,
+    VoidCallback? onTap,
+    List<TextInputFormatter>? inputFormatters,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,6 +74,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
           controller: controller,
           keyboardType: keyboardType,
           obscureText: isPassword ? !isVisible : false,
+          readOnly: readOnly,
+          onTap: onTap,
+          inputFormatters: inputFormatters,
           decoration: InputDecoration(
             hintText: hint,
             suffixIcon: isPassword
@@ -125,6 +132,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final mmStr = mm.toString().padLeft(2, '0');
     final ddStr = dd.toString().padLeft(2, '0');
     return '$yyyy-$mmStr-$ddStr';
+  }
+
+  Future<void> _pickBirthDate() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime(now.year - 20, 1, 1),
+      firstDate: DateTime(1900, 1, 1),
+      lastDate: now,
+    );
+    if (picked == null) return;
+    final dd = picked.day.toString().padLeft(2, '0');
+    final mm = picked.month.toString().padLeft(2, '0');
+    _birthDateController.text = '$dd/$mm/${picked.year}';
   }
 
   @override
@@ -314,6 +335,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           controller: _phoneController,
                           keyboardType: TextInputType.phone,
                           fieldKey: const ValueKey('reg_phone'),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(12),
+                          ],
                         ),
                         _buildTextField(
                           'Email',
@@ -347,6 +372,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             }
                             if (phone.isEmpty) {
                               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No HP tidak boleh kosong')));
+                              return;
+                            }
+                            if (!RegExp(r'^[0-9]+$').hasMatch(phone)) {
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Nomor HP hanya boleh berisi angka')));
+                              return;
+                            }
+                            if (!phone.startsWith('08')) {
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Nomor HP harus diawali dengan "08"')));
+                              return;
+                            }
+                            if (phone.length < 9 || phone.length > 12) {
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Nomor HP harus memiliki panjang 9-12 digit')));
                               return;
                             }
                             if (email.isEmpty || !_isValidEmail(email)) {
@@ -383,6 +420,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           controller: _nikController,
                           keyboardType: TextInputType.number,
                           fieldKey: const ValueKey('reg_nik'),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(16),
+                          ],
                         ),
                         _buildTextField(
                           'Region (Opsional)',
@@ -392,9 +433,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         _buildTextField(
                           'Tanggal Lahir',
-                          'DD/MM/YYYY',
+                          'Pilih Tanggal Lahir',
                           controller: _birthDateController,
-                          keyboardType: TextInputType.datetime,
+                          readOnly: true,
+                          onTap: _pickBirthDate,
                           fieldKey: const ValueKey('reg_birth_date'),
                         ),
                         
@@ -521,9 +563,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                             return;
                                           }
                                           if (nik.isNotEmpty) {
-                                            final digitsOnly = RegExp(r'^[0-9]+$').hasMatch(nik);
-                                            if (!digitsOnly || nik.length != 16) {
-                                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('NIK harus 16 digit angka')));
+                                            if (!RegExp(r'^[0-9]+$').hasMatch(nik)) {
+                                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('NIK harus berupa angka saja')));
+                                              return;
+                                            }
+                                            if (nik.length != 16) {
+                                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('NIK harus tepat 16 digit')));
                                               return;
                                             }
                                           }
@@ -532,7 +577,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                             return;
                                           }
                                           if (genderApi == null) {
-                                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pilih jenis kelamin')));
                                             return;
                                           }
                                           if (password.trim().isEmpty || password.length < 6) {

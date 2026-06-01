@@ -176,6 +176,24 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
                       ),
                       onPressed: (_isFormValid && !_submitting)
                           ? () async {
+                              final nik = _nikController.text.trim();
+                              if (!RegExp(r'^[0-9]+$').hasMatch(nik)) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('NIK harus berupa angka saja'),
+                                  ),
+                                );
+                                return;
+                              }
+                              if (nik.length != 16) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('NIK harus tepat 16 digit'),
+                                  ),
+                                );
+                                return;
+                              }
+
                               if (widget.selectedPoli == null ||
                                   widget.selectedDate == null ||
                                   widget.selectedPoli!.isEmpty ||

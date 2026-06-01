@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:majadigi/features/home/model/service_model.dart';
@@ -170,12 +171,27 @@ class ServiceDetailScreen extends StatelessWidget {
           TextFormField(
             controller: nikController,
             keyboardType: TextInputType.number,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(16),
+            ],
             decoration: InputDecoration(
               labelText: 'NIK Pasien (16 Digit)',
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               prefixIcon: const Icon(Icons.credit_card),
             ),
-            validator: (v) => v == null || v.length != 16 ? 'NIK harus 16 digit' : null,
+            validator: (v) {
+              if (v == null || v.isEmpty) {
+                return 'NIK tidak boleh kosong';
+              }
+              if (!RegExp(r'^[0-9]+$').hasMatch(v)) {
+                return 'NIK harus berupa angka saja';
+              }
+              if (v.length != 16) {
+                return 'NIK harus tepat 16 digit';
+              }
+              return null;
+            },
           ),
           const SizedBox(height: 14),
           DropdownButtonFormField<String>(
@@ -302,12 +318,27 @@ class ServiceDetailScreen extends StatelessWidget {
           TextFormField(
             controller: nikController,
             keyboardType: TextInputType.number,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(16),
+            ],
             decoration: InputDecoration(
               labelText: 'Masukkan NIK Penyandang Disabilitas',
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               prefixIcon: const Icon(Icons.search),
             ),
-            validator: (v) => v == null || v.length != 16 ? 'NIK harus 16 digit' : null,
+            validator: (v) {
+              if (v == null || v.isEmpty) {
+                return 'NIK tidak boleh kosong';
+              }
+              if (!RegExp(r'^[0-9]+$').hasMatch(v)) {
+                return 'NIK harus berupa angka saja';
+              }
+              if (v.length != 16) {
+                return 'NIK harus tepat 16 digit';
+              }
+              return null;
+            },
           ),
           const SizedBox(height: 20),
           ElevatedButton(
@@ -424,13 +455,13 @@ class ServiceDetailScreen extends StatelessWidget {
     if (service.title.contains('Soetomo')) {
       return 'https://rsuddrsoetomo.jatimprov.go.id/';
     } else if (service.title.contains('Saiful Anwar')) {
-      return 'https://rsusaifulanwar.jatimprov.go.id/';
+      return 'https://rsusaifulanwar.jatimprov.go.id/v2/';
     } else if (service.title.contains('Daha Husada')) {
       return 'https://rsuddahahusada.jatimprov.go.id/';
     } else if (service.title.contains('Islamic')) {
       return 'https://islamiccenter.jatimprov.go.id/';
     } else if (service.title.contains('Karsa Husada')) {
-      return 'https://rsudkarsahusadabatu.jatimprov.go.id/';
+      return 'https://rsukarsahusadabatu.jatimprov.go.id/';
     } else if (service.title.contains('Sidita')) {
       return 'https://dinsos.jatimprov.go.id/';
     } else if (service.title.contains('Haji')) {

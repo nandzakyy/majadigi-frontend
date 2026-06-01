@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:majadigi/features/sapa_bansos/presentation/sapa_bansos_program_detail_screen.dart';
 import 'package:majadigi/features/sapa_bansos/presentation/sapa_bansos_status_screen.dart';
 import '../../../core/widgets/custom_wave_header.dart';
@@ -109,6 +110,10 @@ class _SapaBansosInfoScreenState extends State<SapaBansosInfoScreen> {
           TextField(
             controller: _nikController,
             keyboardType: TextInputType.number,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(16),
+            ],
             decoration: InputDecoration(
               hintText: 'Masukan NIK',
               hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
@@ -122,13 +127,22 @@ class _SapaBansosInfoScreenState extends State<SapaBansosInfoScreen> {
             width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: () {
-                if (_nikController.text.trim().isEmpty) {
+                final nik = _nikController.text.trim();
+                if (nik.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Silakan masukkan NIK terlebih dahulu')));
+                  return;
+                }
+                if (!RegExp(r'^[0-9]+$').hasMatch(nik)) {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('NIK harus berupa angka saja')));
+                  return;
+                }
+                if (nik.length != 16) {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('NIK harus tepat 16 digit')));
                   return;
                 }
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => SapaBansosStatusScreen(nik: _nikController.text.trim())),
+                  MaterialPageRoute(builder: (_) => SapaBansosStatusScreen(nik: nik)),
                 );
               },
               icon: const Icon(Icons.search, color: Colors.white, size: 20),

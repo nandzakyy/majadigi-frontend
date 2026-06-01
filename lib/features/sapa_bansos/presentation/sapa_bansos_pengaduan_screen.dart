@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:majadigi/features/sapa_bansos/presentation/sapa_bansos_pengaduan_status_screen.dart';
 import '../../../core/widgets/custom_wave_header.dart';
 
@@ -12,7 +13,7 @@ class SapaBansosPengaduanScreen extends StatefulWidget {
 class _SapaBansosPengaduanScreenState extends State<SapaBansosPengaduanScreen> {
   String _selectedIssue = 'Data tidak sesuai';
   final TextEditingController _nameController = TextEditingController(text: 'Budi Santoso');
-  final TextEditingController _nikController = TextEditingController(text: '327101******0001');
+  final TextEditingController _nikController = TextEditingController(text: '3271012345670001');
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
 
@@ -56,7 +57,15 @@ class _SapaBansosPengaduanScreenState extends State<SapaBansosPengaduanScreen> {
                     const SizedBox(height: 24),
                     _buildField('Nama Lengkap', controller: _nameController),
                     const SizedBox(height: 12),
-                    _buildField('NIK', controller: _nikController),
+                    _buildField(
+                      'NIK',
+                      controller: _nikController,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(16),
+                      ],
+                    ),
                     const SizedBox(height: 12),
                     _buildField('Deskripsi Masalah', controller: _descriptionController, maxLines: 4),
                     const SizedBox(height: 12),
@@ -68,6 +77,19 @@ class _SapaBansosPengaduanScreenState extends State<SapaBansosPengaduanScreen> {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
+                          final nik = _nikController.text.trim();
+                          if (nik.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('NIK tidak boleh kosong')));
+                            return;
+                          }
+                          if (!RegExp(r'^[0-9]+$').hasMatch(nik)) {
+                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('NIK harus berupa angka saja')));
+                            return;
+                          }
+                          if (nik.length != 16) {
+                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('NIK harus tepat 16 digit')));
+                            return;
+                          }
                           Navigator.push(context, MaterialPageRoute(builder: (_) => const SapaBansosPengaduanStatusScreen()));
                         },
                         style: ElevatedButton.styleFrom(
@@ -103,7 +125,14 @@ class _SapaBansosPengaduanScreenState extends State<SapaBansosPengaduanScreen> {
     );
   }
 
-  Widget _buildField(String label, {required TextEditingController controller, int maxLines = 1, IconData? suffixIcon}) {
+  Widget _buildField(
+    String label, {
+    required TextEditingController controller,
+    int maxLines = 1,
+    IconData? suffixIcon,
+    TextInputType? keyboardType,
+    List<TextInputFormatter>? inputFormatters,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -112,6 +141,8 @@ class _SapaBansosPengaduanScreenState extends State<SapaBansosPengaduanScreen> {
         TextField(
           controller: controller,
           maxLines: maxLines,
+          keyboardType: keyboardType,
+          inputFormatters: inputFormatters,
           decoration: InputDecoration(
             hintText: label,
             hintStyle: const TextStyle(fontSize: 13, color: Colors.grey),

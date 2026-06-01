@@ -1,3 +1,4 @@
+// ignore_for_file: uri_does_not_exist
 // Web implementation.
 import 'dart:html' as html;
 import 'dart:js_util' as js_util;
