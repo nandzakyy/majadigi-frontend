@@ -22,9 +22,13 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
   
   String? selectedGender;
 
+  final FocusNode _nikFocusNode = FocusNode();
+  String? _nikErrorText;
+
   @override
   void initState() {
     super.initState();
+    _nikFocusNode.addListener(_onNikFocusChange);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final auth = Provider.of<AuthProvider>(context, listen: false);
       final user = auth.currentUser;
@@ -49,6 +53,21 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
     });
   }
 
+  void _onNikFocusChange() {
+    if (!_nikFocusNode.hasFocus) {
+      final nik = nikController.text.trim();
+      if (nik.isNotEmpty && nik.length != 16) {
+        setState(() {
+          _nikErrorText = 'NIK harus tepat 16 digit';
+        });
+      } else {
+        setState(() {
+          _nikErrorText = null;
+        });
+      }
+    }
+  }
+
   @override
   void dispose() {
     nameController.dispose();
@@ -57,6 +76,8 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
     phoneController.dispose();
     addressController.dispose();
     birthDateController.dispose();
+    _nikFocusNode.removeListener(_onNikFocusChange);
+    _nikFocusNode.dispose();
     super.dispose();
   }
 
@@ -120,6 +141,8 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
                 FilteringTextInputFormatter.digitsOnly,
                 LengthLimitingTextInputFormatter(16),
               ],
+              focusNode: _nikFocusNode,
+              errorText: _nikErrorText,
             ),
             const SizedBox(height: 16),
             _buildTextField("Email", emailController, false, readOnly: true),
@@ -204,14 +227,23 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
                   }
                   if (nik.isNotEmpty) {
                     if (!RegExp(r'^[0-9]+$').hasMatch(nik)) {
+                      setState(() {
+                        _nikErrorText = 'NIK harus berupa angka saja';
+                      });
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('NIK harus berupa angka saja')));
                       return;
                     }
                     if (nik.length != 16) {
+                      setState(() {
+                        _nikErrorText = 'NIK harus tepat 16 digit';
+                      });
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('NIK harus tepat 16 digit')));
                       return;
                     }
                   }
+                  setState(() {
+                    _nikErrorText = null;
+                  });
                   if (genderApi == null) {
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pilih jenis kelamin')));
                     return;
@@ -271,6 +303,8 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
     bool readOnly = false,
     List<TextInputFormatter>? inputFormatters,
     TextInputType? keyboardType,
+    FocusNode? focusNode,
+    String? errorText,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -284,15 +318,18 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
           style: const TextStyle(fontSize: 14, color: Colors.black87),
           keyboardType: keyboardType,
           inputFormatters: inputFormatters,
-          decoration: _inputDecoration(),
+          focusNode: focusNode,
+          decoration: _inputDecoration(errorText: errorText),
         ),
       ],
     );
   }
 
-  InputDecoration _inputDecoration() {
+  InputDecoration _inputDecoration({String? errorText}) {
     return InputDecoration(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      errorText: errorText,
+      errorStyle: const TextStyle(color: Colors.red),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide(color: Colors.grey.shade300),
@@ -304,6 +341,14 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: const BorderSide(color: Color(0xFF0D6EFD)),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Colors.red),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Colors.red, width: 1.5),
       ),
     );
   }

@@ -17,8 +17,34 @@ class _SapaBansosPengaduanScreenState extends State<SapaBansosPengaduanScreen> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
 
+  final FocusNode _nikFocusNode = FocusNode();
+  String? _nikErrorText;
+
+  @override
+  void initState() {
+    super.initState();
+    _nikFocusNode.addListener(_onNikFocusChange);
+  }
+
+  void _onNikFocusChange() {
+    if (!_nikFocusNode.hasFocus) {
+      final nik = _nikController.text.trim();
+      if (nik.isNotEmpty && nik.length != 16) {
+        setState(() {
+          _nikErrorText = 'NIK harus tepat 16 digit';
+        });
+      } else {
+        setState(() {
+          _nikErrorText = null;
+        });
+      }
+    }
+  }
+
   @override
   void dispose() {
+    _nikFocusNode.removeListener(_onNikFocusChange);
+    _nikFocusNode.dispose();
     _nameController.dispose();
     _nikController.dispose();
     _descriptionController.dispose();
@@ -65,6 +91,8 @@ class _SapaBansosPengaduanScreenState extends State<SapaBansosPengaduanScreen> {
                         FilteringTextInputFormatter.digitsOnly,
                         LengthLimitingTextInputFormatter(16),
                       ],
+                      focusNode: _nikFocusNode,
+                      errorText: _nikErrorText,
                     ),
                     const SizedBox(height: 12),
                     _buildField('Deskripsi Masalah', controller: _descriptionController, maxLines: 4),
@@ -79,17 +107,29 @@ class _SapaBansosPengaduanScreenState extends State<SapaBansosPengaduanScreen> {
                         onPressed: () {
                           final nik = _nikController.text.trim();
                           if (nik.isEmpty) {
+                            setState(() {
+                              _nikErrorText = 'NIK tidak boleh kosong';
+                            });
                             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('NIK tidak boleh kosong')));
                             return;
                           }
                           if (!RegExp(r'^[0-9]+$').hasMatch(nik)) {
+                            setState(() {
+                              _nikErrorText = 'NIK harus berupa angka saja';
+                            });
                             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('NIK harus berupa angka saja')));
                             return;
                           }
                           if (nik.length != 16) {
+                            setState(() {
+                              _nikErrorText = 'NIK harus tepat 16 digit';
+                            });
                             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('NIK harus tepat 16 digit')));
                             return;
                           }
+                          setState(() {
+                            _nikErrorText = null;
+                          });
                           Navigator.push(context, MaterialPageRoute(builder: (_) => const SapaBansosPengaduanStatusScreen()));
                         },
                         style: ElevatedButton.styleFrom(
@@ -132,6 +172,8 @@ class _SapaBansosPengaduanScreenState extends State<SapaBansosPengaduanScreen> {
     IconData? suffixIcon,
     TextInputType? keyboardType,
     List<TextInputFormatter>? inputFormatters,
+    FocusNode? focusNode,
+    String? errorText,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -143,13 +185,19 @@ class _SapaBansosPengaduanScreenState extends State<SapaBansosPengaduanScreen> {
           maxLines: maxLines,
           keyboardType: keyboardType,
           inputFormatters: inputFormatters,
+          focusNode: focusNode,
           decoration: InputDecoration(
             hintText: label,
             hintStyle: const TextStyle(fontSize: 13, color: Colors.grey),
             suffixIcon: suffixIcon != null ? Icon(suffixIcon, color: Colors.grey) : null,
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            errorText: errorText,
+            errorStyle: const TextStyle(color: Colors.red),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: BorderSide(color: Colors.grey.shade300)),
             enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: BorderSide(color: Colors.grey.shade300)),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: const BorderSide(color: Color(0xFF0065FF), width: 1.5)),
+            errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: const BorderSide(color: Colors.red)),
+            focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: const BorderSide(color: Colors.red, width: 1.5)),
           ),
         ),
       ],

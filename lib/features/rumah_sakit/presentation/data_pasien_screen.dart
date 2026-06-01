@@ -35,6 +35,9 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
 
   bool _submitting = false;
 
+  final FocusNode _nikFocusNode = FocusNode();
+  String? _nikErrorText;
+
   bool get _isFormValid {
     return _nikController.text.trim().isNotEmpty &&
         _namaController.text.trim().isNotEmpty &&
@@ -53,6 +56,26 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
     _nikController.addListener(_updateState);
     _namaController.addListener(_updateState);
     _tglLahirController.addListener(_updateState);
+    _nikFocusNode.addListener(_onNikFocusChange);
+  }
+
+  void _onNikFocusChange() {
+    if (!_nikFocusNode.hasFocus) {
+      final nik = _nikController.text.trim();
+      if (nik.isEmpty) {
+        setState(() {
+          _nikErrorText = 'NIK tidak boleh kosong';
+        });
+      } else if (nik.length != 16) {
+        setState(() {
+          _nikErrorText = 'NIK harus tepat 16 digit';
+        });
+      } else {
+        setState(() {
+          _nikErrorText = null;
+        });
+      }
+    }
   }
 
   @override
@@ -60,6 +83,8 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
     _nikController.dispose();
     _namaController.dispose();
     _tglLahirController.dispose();
+    _nikFocusNode.removeListener(_onNikFocusChange);
+    _nikFocusNode.dispose();
     super.dispose();
   }
 
@@ -117,6 +142,8 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
                       FilteringTextInputFormatter.digitsOnly,
                       LengthLimitingTextInputFormatter(16),
                     ],
+                    focusNode: _nikFocusNode,
+                    errorText: _nikErrorText,
                   ),
 
                   const SizedBox(height: 24),
@@ -178,6 +205,9 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
                           ? () async {
                               final nik = _nikController.text.trim();
                               if (!RegExp(r'^[0-9]+$').hasMatch(nik)) {
+                                setState(() {
+                                  _nikErrorText = 'NIK harus berupa angka saja';
+                                });
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text('NIK harus berupa angka saja'),
@@ -186,6 +216,9 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
                                 return;
                               }
                               if (nik.length != 16) {
+                                setState(() {
+                                  _nikErrorText = 'NIK harus tepat 16 digit';
+                                });
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text('NIK harus tepat 16 digit'),
@@ -193,6 +226,9 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
                                 );
                                 return;
                               }
+                              setState(() {
+                                _nikErrorText = null;
+                              });
 
                               if (widget.selectedPoli == null ||
                                   widget.selectedDate == null ||
@@ -473,6 +509,8 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
     TextInputType? keyboardType,
     bool readOnly = false,
     VoidCallback? onTap,
+    FocusNode? focusNode,
+    String? errorText,
   }) {
     return TextField(
       controller: controller,
@@ -480,11 +518,14 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
       inputFormatters: inputFormatters,
       readOnly: readOnly,
       onTap: onTap,
+      focusNode: focusNode,
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
         filled: true,
         fillColor: const Color(0xFFFAFAFA),
+        errorText: errorText,
+        errorStyle: const TextStyle(color: Colors.red),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 14,
@@ -503,6 +544,14 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Color(0xFF0D6EFD), width: 1.5),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.red),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.red, width: 1.5),
         ),
       ),
     );

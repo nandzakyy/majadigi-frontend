@@ -21,7 +21,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
-  final _phoneController = TextEditingController();
+  final _phoneController = TextEditingController(text: '08');
   final _emailController = TextEditingController();
   final _usernameController = TextEditingController();
 
@@ -31,6 +31,75 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _birthDateController = TextEditingController(); // DD/MM/YYYY (UI), converted to YYYY-MM-DD (API)
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+
+  final FocusNode _nikFocusNode = FocusNode();
+  final FocusNode _emailFocusNode = FocusNode();
+  final FocusNode _phoneFocusNode = FocusNode();
+
+  String? _nikErrorText;
+  String? _emailErrorText;
+  String? _phoneErrorText;
+
+  @override
+  void initState() {
+    super.initState();
+    _nikFocusNode.addListener(_onNikFocusChange);
+    _emailFocusNode.addListener(_onEmailFocusChange);
+    _phoneFocusNode.addListener(_onPhoneFocusChange);
+  }
+
+  void _onNikFocusChange() {
+    if (!_nikFocusNode.hasFocus) {
+      final nik = _nikController.text.trim();
+      if (nik.isNotEmpty && nik.length != 16) {
+        setState(() {
+          _nikErrorText = 'NIK harus tepat 16 digit';
+        });
+      } else {
+        setState(() {
+          _nikErrorText = null;
+        });
+      }
+    }
+  }
+
+  void _onEmailFocusChange() {
+    if (!_emailFocusNode.hasFocus) {
+      final email = _emailController.text.trim();
+      if (email.isEmpty) {
+        setState(() {
+          _emailErrorText = 'Email tidak boleh kosong';
+        });
+      } else if (!email.endsWith('@gmail.com')) {
+        setState(() {
+          _emailErrorText = 'Email harus diakhiri dengan @gmail.com';
+        });
+      } else {
+        setState(() {
+          _emailErrorText = null;
+        });
+      }
+    }
+  }
+
+  void _onPhoneFocusChange() {
+    if (!_phoneFocusNode.hasFocus) {
+      final phone = _phoneController.text.trim();
+      if (phone.isEmpty || phone == '08') {
+        setState(() {
+          _phoneErrorText = 'No HP tidak boleh kosong';
+        });
+      } else if (phone.length < 9 || phone.length > 12) {
+        setState(() {
+          _phoneErrorText = 'Nomor HP harus memiliki panjang 9-12 digit';
+        });
+      } else {
+        setState(() {
+          _phoneErrorText = null;
+        });
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -45,6 +114,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _birthDateController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _nikFocusNode.dispose();
+    _emailFocusNode.dispose();
+    _phoneFocusNode.dispose();
     super.dispose();
   }
 
@@ -60,6 +132,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     bool readOnly = false,
     VoidCallback? onTap,
     List<TextInputFormatter>? inputFormatters,
+    FocusNode? focusNode,
+    String? errorText,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -77,8 +151,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
           readOnly: readOnly,
           onTap: onTap,
           inputFormatters: inputFormatters,
+          focusNode: focusNode,
           decoration: InputDecoration(
             hintText: hint,
+            errorText: errorText,
+            errorStyle: const TextStyle(color: Colors.red),
             suffixIcon: isPassword
                 ? IconButton(
                     icon: Icon(
@@ -95,6 +172,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFF0D6EFD)),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.red),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.red, width: 1.5),
             ),
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           ),
@@ -329,7 +418,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           controller: _lastNameController,
                           fieldKey: const ValueKey('reg_last_name'),
                         ),
-                        _buildTextField(
+                         _buildTextField(
                           'No HP',
                           'Masukkan nomor HP',
                           controller: _phoneController,
@@ -337,8 +426,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           fieldKey: const ValueKey('reg_phone'),
                           inputFormatters: [
                             FilteringTextInputFormatter.digitsOnly,
+                            PrefixTextInputFormatter('08'),
                             LengthLimitingTextInputFormatter(12),
                           ],
+                          focusNode: _phoneFocusNode,
+                          errorText: _phoneErrorText,
                         ),
                         _buildTextField(
                           'Email',
@@ -346,6 +438,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
                           fieldKey: const ValueKey('reg_email'),
+                          focusNode: _emailFocusNode,
+                          errorText: _emailErrorText,
                         ),
                         _buildTextField(
                           'Username',
@@ -370,26 +464,55 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Nama belakang tidak boleh kosong')));
                               return;
                             }
-                            if (phone.isEmpty) {
+                             if (phone.isEmpty || phone == '08') {
+                              setState(() {
+                                _phoneErrorText = 'No HP tidak boleh kosong';
+                              });
                               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No HP tidak boleh kosong')));
                               return;
                             }
                             if (!RegExp(r'^[0-9]+$').hasMatch(phone)) {
+                              setState(() {
+                                _phoneErrorText = 'Nomor HP hanya boleh berisi angka';
+                              });
                               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Nomor HP hanya boleh berisi angka')));
                               return;
                             }
                             if (!phone.startsWith('08')) {
+                              setState(() {
+                                _phoneErrorText = 'Nomor HP harus diawali dengan "08"';
+                              });
                               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Nomor HP harus diawali dengan "08"')));
                               return;
                             }
                             if (phone.length < 9 || phone.length > 12) {
+                              setState(() {
+                                _phoneErrorText = 'Nomor HP harus memiliki panjang 9-12 digit';
+                              });
                               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Nomor HP harus memiliki panjang 9-12 digit')));
                               return;
                             }
-                            if (email.isEmpty || !_isValidEmail(email)) {
-                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Email tidak valid')));
+                            setState(() {
+                              _phoneErrorText = null;
+                            });
+
+                            if (email.isEmpty) {
+                              setState(() {
+                                _emailErrorText = 'Email tidak boleh kosong';
+                              });
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Email tidak boleh kosong')));
                               return;
                             }
+                            if (!email.endsWith('@gmail.com')) {
+                              setState(() {
+                                _emailErrorText = 'Email harus diakhiri dengan @gmail.com';
+                              });
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Email harus menggunakan domain @gmail.com')));
+                              return;
+                            }
+                            setState(() {
+                              _emailErrorText = null;
+                            });
                             if (username.isEmpty) {
                               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Username tidak boleh kosong')));
                               return;
@@ -415,7 +538,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           fieldKey: const ValueKey('reg_address'),
                         ),
                         _buildTextField(
-                          'NIK (Opsional)',
+                          'Region (Opsional)',
+                          'Contoh: Malang',
+                          controller: _regionController,
+                          fieldKey: const ValueKey('reg_region'),
+                        ),
+                        _buildTextField(
+                          'NIK',
                           '16 digit',
                           controller: _nikController,
                           keyboardType: TextInputType.number,
@@ -424,12 +553,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             FilteringTextInputFormatter.digitsOnly,
                             LengthLimitingTextInputFormatter(16),
                           ],
-                        ),
-                        _buildTextField(
-                          'Region (Opsional)',
-                          'Contoh: Malang',
-                          controller: _regionController,
-                          fieldKey: const ValueKey('reg_region'),
+                          focusNode: _nikFocusNode,
+                          errorText: _nikErrorText,
                         ),
                         _buildTextField(
                           'Tanggal Lahir',
@@ -562,17 +687,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Username tidak boleh kosong')));
                                             return;
                                           }
-                                          if (nik.isNotEmpty) {
-                                            if (!RegExp(r'^[0-9]+$').hasMatch(nik)) {
-                                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('NIK harus berupa angka saja')));
-                                              return;
-                                            }
-                                            if (nik.length != 16) {
-                                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('NIK harus tepat 16 digit')));
-                                              return;
-                                            }
-                                          }
-                                          if (birthIso == null) {
+                                           if (nik.isNotEmpty) {
+                                             if (!RegExp(r'^[0-9]+$').hasMatch(nik)) {
+                                               setState(() {
+                                                 _nikErrorText = 'NIK harus berupa angka saja';
+                                               });
+                                               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('NIK harus berupa angka saja')));
+                                               return;
+                                             }
+                                             if (nik.length != 16) {
+                                               setState(() {
+                                                 _nikErrorText = 'NIK harus tepat 16 digit';
+                                               });
+                                               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('NIK harus tepat 16 digit')));
+                                               return;
+                                             }
+                                           }
+                                           setState(() {
+                                             _nikErrorText = null;
+                                           });if (birthIso == null) {
                                             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Tanggal lahir tidak valid (DD/MM/YYYY)')));
                                             return;
                                           }
@@ -653,5 +786,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       ),
     );
+  }
+}
+
+class PrefixTextInputFormatter extends TextInputFormatter {
+  final String prefix;
+
+  PrefixTextInputFormatter(this.prefix);
+
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    if (!newValue.text.startsWith(prefix)) {
+      if (newValue.text.isEmpty || newValue.text.length < prefix.length) {
+        return TextEditingValue(
+          text: prefix,
+          selection: TextSelection.collapsed(offset: prefix.length),
+        );
+      }
+      return oldValue;
+    }
+    return newValue;
   }
 }

@@ -175,6 +175,7 @@ class ServiceDetailScreen extends StatelessWidget {
               FilteringTextInputFormatter.digitsOnly,
               LengthLimitingTextInputFormatter(16),
             ],
+            autovalidateMode: AutovalidateMode.onUserInteraction,
             decoration: InputDecoration(
               labelText: 'NIK Pasien (16 Digit)',
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
@@ -322,6 +323,7 @@ class ServiceDetailScreen extends StatelessWidget {
               FilteringTextInputFormatter.digitsOnly,
               LengthLimitingTextInputFormatter(16),
             ],
+            autovalidateMode: AutovalidateMode.onUserInteraction,
             decoration: InputDecoration(
               labelText: 'Masukkan NIK Penyandang Disabilitas',
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),

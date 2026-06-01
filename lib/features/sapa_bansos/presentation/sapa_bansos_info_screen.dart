@@ -14,8 +14,38 @@ class SapaBansosInfoScreen extends StatefulWidget {
 class _SapaBansosInfoScreenState extends State<SapaBansosInfoScreen> {
   final TextEditingController _nikController = TextEditingController();
 
+  final FocusNode _nikFocusNode = FocusNode();
+  String? _nikErrorText;
+
+  @override
+  void initState() {
+    super.initState();
+    _nikFocusNode.addListener(_onNikFocusChange);
+  }
+
+  void _onNikFocusChange() {
+    if (!_nikFocusNode.hasFocus) {
+      final nik = _nikController.text.trim();
+      if (nik.isEmpty) {
+        setState(() {
+          _nikErrorText = 'Silakan masukkan NIK terlebih dahulu';
+        });
+      } else if (nik.length != 16) {
+        setState(() {
+          _nikErrorText = 'NIK harus tepat 16 digit';
+        });
+      } else {
+        setState(() {
+          _nikErrorText = null;
+        });
+      }
+    }
+  }
+
   @override
   void dispose() {
+    _nikFocusNode.removeListener(_onNikFocusChange);
+    _nikFocusNode.dispose();
     _nikController.dispose();
     super.dispose();
   }
@@ -110,6 +140,7 @@ class _SapaBansosInfoScreenState extends State<SapaBansosInfoScreen> {
           TextField(
             controller: _nikController,
             keyboardType: TextInputType.number,
+            focusNode: _nikFocusNode,
             inputFormatters: [
               FilteringTextInputFormatter.digitsOnly,
               LengthLimitingTextInputFormatter(16),
@@ -117,9 +148,14 @@ class _SapaBansosInfoScreenState extends State<SapaBansosInfoScreen> {
             decoration: InputDecoration(
               hintText: 'Masukan NIK',
               hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
+              errorText: _nikErrorText,
+              errorStyle: const TextStyle(color: Colors.red),
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(25), borderSide: BorderSide(color: Colors.grey.shade300)),
               enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(25), borderSide: BorderSide(color: Colors.grey.shade300)),
+              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(25), borderSide: const BorderSide(color: Color(0xFF0065FF), width: 1.5)),
+              errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(25), borderSide: const BorderSide(color: Colors.red)),
+              focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(25), borderSide: const BorderSide(color: Colors.red, width: 1.5)),
             ),
           ),
           const SizedBox(height: 16),
@@ -129,17 +165,29 @@ class _SapaBansosInfoScreenState extends State<SapaBansosInfoScreen> {
               onPressed: () {
                 final nik = _nikController.text.trim();
                 if (nik.isEmpty) {
+                  setState(() {
+                    _nikErrorText = 'Silakan masukkan NIK terlebih dahulu';
+                  });
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Silakan masukkan NIK terlebih dahulu')));
                   return;
                 }
                 if (!RegExp(r'^[0-9]+$').hasMatch(nik)) {
+                  setState(() {
+                    _nikErrorText = 'NIK harus berupa angka saja';
+                  });
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('NIK harus berupa angka saja')));
                   return;
                 }
                 if (nik.length != 16) {
+                  setState(() {
+                    _nikErrorText = 'NIK harus tepat 16 digit';
+                  });
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('NIK harus tepat 16 digit')));
                   return;
                 }
+                setState(() {
+                  _nikErrorText = null;
+                });
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => SapaBansosStatusScreen(nik: nik)),
