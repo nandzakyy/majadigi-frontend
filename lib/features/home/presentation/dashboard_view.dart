@@ -50,7 +50,9 @@ class DashboardView extends StatelessWidget {
     } else if (title.contains('islamic center')) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const IslamicCenterDetailScreen()),
+        MaterialPageRoute(
+          builder: (context) => const IslamicCenterDetailScreen(),
+        ),
       );
     } else if (title.contains('rsud') ||
         title.contains('soetomo') ||
@@ -67,11 +69,13 @@ class DashboardView extends StatelessWidget {
             .replaceAll(RegExp(r'[^a-z0-9]+'), '')
             .trim();
       }
+
       final rsMatch = RumahSakitData.rsList.firstWhere(
         (rs) {
           final rsNameNormalized = normalizeHospitalName(rs["nama"]!);
           final serviceTitleNormalized = normalizeHospitalName(service.title);
-          return rsNameNormalized.contains(serviceTitleNormalized) || serviceTitleNormalized.contains(rsNameNormalized);
+          return rsNameNormalized.contains(serviceTitleNormalized) ||
+              serviceTitleNormalized.contains(rsNameNormalized);
         },
         orElse: () => {
           "id": null,
@@ -95,7 +99,9 @@ class DashboardView extends StatelessWidget {
     } else {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => ServiceDetailScreen(service: service)),
+        MaterialPageRoute(
+          builder: (context) => ServiceDetailScreen(service: service),
+        ),
       );
     }
   }
@@ -108,12 +114,14 @@ class DashboardView extends StatelessWidget {
     final List<ServiceModel> services = dynamicLoader.personalizedServices;
     final bool hasFavorites = dynamicLoader.hasSavedPreferences;
     // ensure status bar color matches header so the top area is fully blue
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.light,
-      systemNavigationBarColor: Colors.transparent,
-      systemNavigationBarIconBrightness: Brightness.dark,
-    ));
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarIconBrightness: Brightness.dark,
+      ),
+    );
     return Column(
       children: [
         CustomWaveHeader(
@@ -137,16 +145,24 @@ class DashboardView extends StatelessWidget {
                       ),
                     );
                   },
-                  icon: const Icon(Icons.login_rounded, color: Colors.white, size: 26),
+                  icon: const Icon(
+                    Icons.login_rounded,
+                    color: Colors.white,
+                    size: 26,
+                  ),
                 )
-	              : IconButton(
-	                  onPressed: () async {
-	                    await auth.logout();
-	                    dynamicLoader.enterGuestMode();
-	                  },
-	                  icon: const Icon(Icons.logout_rounded, color: Colors.white, size: 26),
-	                ),
-	        ),
+              : IconButton(
+                  onPressed: () async {
+                    await auth.logout();
+                    dynamicLoader.enterGuestMode();
+                  },
+                  icon: const Icon(
+                    Icons.logout_rounded,
+                    color: Colors.white,
+                    size: 26,
+                  ),
+                ),
+        ),
         // Content inside SafeArea so it doesn't collide with system UI
         Expanded(
           child: SafeArea(
@@ -174,7 +190,11 @@ class DashboardView extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 10),
-                        _buildFavoritesSection(context, dynamicLoader, auth.isLoggedIn),
+                        _buildFavoritesSection(
+                          context,
+                          dynamicLoader,
+                          auth.isLoggedIn,
+                        ),
                         const SizedBox(height: 28),
                       ],
 
@@ -182,7 +202,11 @@ class DashboardView extends StatelessWidget {
                       if (hasFavorites) ...[
                         const Text(
                           'Layanan Favorit Anda',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textMain),
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textMain,
+                          ),
                         ),
                         const SizedBox(height: 8),
                         Align(
@@ -191,7 +215,10 @@ class DashboardView extends StatelessWidget {
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (_) => const SelectFavoriteServicesScreen()),
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      const SelectFavoriteServicesScreen(),
+                                ),
                               );
                             },
                             child: const Text('Edit Favorit'),
@@ -201,12 +228,13 @@ class DashboardView extends StatelessWidget {
                         GridView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            mainAxisSpacing: 16,
-                            crossAxisSpacing: 16,
-                            childAspectRatio: 1.15,
-                          ),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                mainAxisSpacing: 16,
+                                crossAxisSpacing: 16,
+                                childAspectRatio: 1.15,
+                              ),
                           itemCount: services.length,
                           itemBuilder: (context, index) {
                             final service = services[index];
@@ -214,7 +242,10 @@ class DashboardView extends StatelessWidget {
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: Colors.grey.shade100, width: 1.5),
+                                border: Border.all(
+                                  color: Colors.grey.shade100,
+                                  width: 1.5,
+                                ),
                                 boxShadow: [
                                   BoxShadow(
                                     color: Colors.black.withOpacity(0.03),
@@ -228,7 +259,8 @@ class DashboardView extends StatelessWidget {
                                 child: Material(
                                   color: Colors.transparent,
                                   child: InkWell(
-                                    onTap: () => _navigateToService(context, service),
+                                    onTap: () =>
+                                        _navigateToService(context, service),
                                     child: Stack(
                                       children: [
                                         // Rank Badge
@@ -236,10 +268,15 @@ class DashboardView extends StatelessWidget {
                                           top: 10,
                                           right: 10,
                                           child: Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 4,
+                                            ),
                                             decoration: BoxDecoration(
-                                              color: AppColors.primary.withOpacity(0.08),
-                                              borderRadius: BorderRadius.circular(20),
+                                              color: AppColors.primary
+                                                  .withOpacity(0.08),
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
                                             ),
                                             child: Text(
                                               '#${index + 1}',
@@ -255,16 +292,37 @@ class DashboardView extends StatelessWidget {
                                         Align(
                                           alignment: Alignment.center,
                                           child: Padding(
-                                            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 16.0),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 12.0,
+                                              vertical: 16.0,
+                                            ),
                                             child: Column(
-                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
                                               children: [
                                                 const SizedBox(height: 12),
                                                 service.assetPath != null
-                                                    ? (service.assetPath!.toLowerCase().endsWith('.svg')
-                                                        ? SvgPicture.asset(service.assetPath!, width: 44, height: 44)
-                                                        : Image.asset(service.assetPath!, width: 44, height: 44))
-                                                    : Icon(service.icon, size: 44, color: AppColors.primary),
+                                                    ? (service.assetPath!
+                                                              .toLowerCase()
+                                                              .endsWith('.svg')
+                                                          ? SvgPicture.asset(
+                                                              service
+                                                                  .assetPath!,
+                                                              width: 44,
+                                                              height: 44,
+                                                            )
+                                                          : Image.asset(
+                                                              service
+                                                                  .assetPath!,
+                                                              width: 44,
+                                                              height: 44,
+                                                            ))
+                                                    : Icon(
+                                                        service.icon,
+                                                        size: 44,
+                                                        color:
+                                                            AppColors.primary,
+                                                      ),
                                                 const SizedBox(height: 10),
                                                 Text(
                                                   service.title,
@@ -275,7 +333,8 @@ class DashboardView extends StatelessWidget {
                                                     color: AppColors.textMain,
                                                   ),
                                                   maxLines: 2,
-                                                  overflow: TextOverflow.ellipsis,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                 ),
                                               ],
                                             ),
@@ -296,7 +355,11 @@ class DashboardView extends StatelessWidget {
                       const SizedBox(height: 28),
                       const Text(
                         'Ekosistem Data Jawa Timur',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textMain),
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textMain,
+                        ),
                       ),
                       const SizedBox(height: 12),
                       Column(
@@ -304,7 +367,8 @@ class DashboardView extends StatelessWidget {
                           _buildEkoCard(
                             context,
                             title: 'Satu Peta',
-                            description: 'Menyediakan visualisasi spasial proyek, layanan, dan wilayah di Jawa Timur dalam satu peta terintegrasi.',
+                            description:
+                                'Menyediakan visualisasi spasial proyek, layanan, dan wilayah di Jawa Timur dalam satu peta terintegrasi.',
                             assetPath: 'assets/vectors/logo_satu_peta.svg',
                             url: 'https://satupeta.jatimprov.go.id/',
                           ),
@@ -312,7 +376,8 @@ class DashboardView extends StatelessWidget {
                           _buildEkoCard(
                             context,
                             title: 'Satu Data',
-                            description: 'Akses data terstandar dari berbagai instansi pemerintah Jawa Timur, mendukung transparansi dan perencanaan berbasis data.',
+                            description:
+                                'Akses data terstandar dari berbagai instansi pemerintah Jawa Timur, mendukung transparansi dan perencanaan berbasis data.',
                             assetPath: 'assets/images/logo_satu_data.png',
                             url: 'https://satudata.jatimprov.go.id/login',
                           ),
@@ -320,9 +385,19 @@ class DashboardView extends StatelessWidget {
                           _buildEkoCard(
                             context,
                             title: 'Open Data',
-                            description: 'Unduh dan gunakan dataset publik dari berbagai sektor, terbuka untuk masyarakat, peneliti, dan pengembang.',
+                            description:
+                                'Unduh dan gunakan dataset publik dari berbagai sektor, terbuka untuk masyarakat, peneliti, dan pengembang.',
                             assetPath: 'assets/images/logo_open_data.png',
                             url: 'https://opendata.jatimprov.go.id/',
+                          ),
+                          const SizedBox(height: 12),
+                          _buildEkoCard(
+                            context,
+                            title: 'Dashboard Publik',
+                            description:
+                                'Menampilkan visualisasi data kinerja, anggaran, dan indikator pembangunan utama Provinsi Jawa Timur secara transparan.',
+                            assetPath: 'assets/images/logo_dashboard_publik.png',
+                            url: 'https://dashboard.jatimprov.go.id/',
                           ),
                         ],
                       ),
@@ -336,10 +411,25 @@ class DashboardView extends StatelessWidget {
       ],
     );
   }
-  Widget _buildFavoritesSection(BuildContext context, DynamicLoaderProvider loader, bool isLoggedIn) {
+
+  Widget _buildFavoritesSection(
+    BuildContext context,
+    DynamicLoaderProvider loader,
+    bool isLoggedIn,
+  ) {
     final hasFavorites = loader.hasSavedPreferences;
     final selectedServices = loader.savedServiceTitles
-        .map((title) => loader.allServices.firstWhere((service) => service.title == title, orElse: () => ServiceModel(title: title, icon: Icons.star, category: '', availableRegions: ['All'])))
+        .map(
+          (title) => loader.allServices.firstWhere(
+            (service) => service.title == title,
+            orElse: () => ServiceModel(
+              title: title,
+              icon: Icons.star,
+              category: '',
+              availableRegions: ['All'],
+            ),
+          ),
+        )
         .toList();
     final List<Widget> cards = [];
 
@@ -355,7 +445,10 @@ class DashboardView extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFF0065FF).withOpacity(0.08), width: 1.5),
+        border: Border.all(
+          color: const Color(0xFF0065FF).withOpacity(0.08),
+          width: 1.5,
+        ),
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -390,7 +483,11 @@ class DashboardView extends StatelessWidget {
                         child: const Center(
                           child: Text(
                             'Favorit',
-                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.primary),
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primary,
+                            ),
                           ),
                         ),
                       ),
@@ -408,7 +505,11 @@ class DashboardView extends StatelessWidget {
                     child: const Center(
                       child: Text(
                         'Favorit',
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.primary),
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primary,
+                        ),
                       ),
                     ),
                   ),
@@ -424,12 +525,16 @@ class DashboardView extends StatelessWidget {
                     child: const Center(
                       child: Text(
                         'Layanan',
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black54),
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black54,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ]
+              ],
             ],
           ),
           const SizedBox(height: 12),
@@ -447,7 +552,10 @@ class DashboardView extends StatelessWidget {
     );
   }
 
-  Widget _buildFavoritePlaceholder(BuildContext context, {required bool isLoggedIn}) {
+  Widget _buildFavoritePlaceholder(
+    BuildContext context, {
+    required bool isLoggedIn,
+  }) {
     return Expanded(
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 5),
@@ -461,7 +569,9 @@ class DashboardView extends StatelessWidget {
                 if (isLoggedIn) {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const SelectFavoriteServicesScreen()),
+                    MaterialPageRoute(
+                      builder: (_) => const SelectFavoriteServicesScreen(),
+                    ),
                   );
                 } else {
                   Navigator.push(
@@ -484,7 +594,7 @@ class DashboardView extends StatelessWidget {
                         color: Colors.black.withOpacity(0.01),
                         blurRadius: 4,
                         offset: const Offset(0, 2),
-                      )
+                      ),
                     ],
                   ),
                   child: Center(
@@ -494,7 +604,11 @@ class DashboardView extends StatelessWidget {
                         color: AppColors.primary.withOpacity(0.07),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.add_rounded, color: AppColors.primary, size: 20),
+                      child: const Icon(
+                        Icons.add_rounded,
+                        color: AppColors.primary,
+                        size: 20,
+                      ),
                     ),
                   ),
                 ),
@@ -535,8 +649,16 @@ class DashboardView extends StatelessWidget {
                     Center(
                       child: service.assetPath != null
                           ? (service.assetPath!.toLowerCase().endsWith('.svg')
-                              ? SvgPicture.asset(service.assetPath!, width: 24, height: 24)
-                              : Image.asset(service.assetPath!, width: 24, height: 24))
+                                ? SvgPicture.asset(
+                                    service.assetPath!,
+                                    width: 24,
+                                    height: 24,
+                                  )
+                                : Image.asset(
+                                    service.assetPath!,
+                                    width: 24,
+                                    height: 24,
+                                  ))
                           : Icon(service.icon, color: Colors.white, size: 24),
                     ),
                     Positioned(
@@ -550,12 +672,20 @@ class DashboardView extends StatelessWidget {
                           onTap: () {
                             loader.removeFavoriteTitle(service.title);
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Dihapus dari favorit: ${service.title}')),
+                              SnackBar(
+                                content: Text(
+                                  'Dihapus dari favorit: ${service.title}',
+                                ),
+                              ),
                             );
                           },
                           child: const Padding(
                             padding: EdgeInsets.all(6.0),
-                            child: Icon(Icons.close, size: 14, color: Colors.white),
+                            child: Icon(
+                              Icons.close,
+                              size: 14,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ),
@@ -583,7 +713,13 @@ class DashboardView extends StatelessWidget {
     return Icon(service.icon, color: AppColors.primary, size: 28);
   }
 
-  Widget _buildEkoCard(BuildContext context, {required String title, required String description, required String assetPath, required String url}) {
+  Widget _buildEkoCard(
+    BuildContext context, {
+    required String title,
+    required String description,
+    required String assetPath,
+    required String url,
+  }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -605,12 +741,20 @@ class DashboardView extends StatelessWidget {
           child: InkWell(
             onTap: () async {
               final uri = Uri.parse(url);
-              final can = await canLaunchUrl(uri);
-              if (!can) {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Tidak dapat membuka link')));
-                return;
+              try {
+                final success = await launchUrl(uri, mode: LaunchMode.externalApplication);
+                if (!success && context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Tidak dapat membuka link')),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Tidak dapat membuka link')),
+                  );
+                }
               }
-              await launchUrl(uri, mode: LaunchMode.externalApplication);
             },
             child: Padding(
               padding: const EdgeInsets.all(14.0),

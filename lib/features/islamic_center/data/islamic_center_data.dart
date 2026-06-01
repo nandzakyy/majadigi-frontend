@@ -117,11 +117,11 @@ class IslamicCenterData {
   static final List<Map<String, String>> ketentuanData = const [
     {
       "title": "Manfaat",
-      "content": "Isi detail lengkap mengenai ketentuan terkait.",
+      "content": "• Menyediakan sarana ibadah yang bersih, representatif, dan nyaman bagi jamaah.\n• Menyediakan fasilitas lengkap untuk menunjang kegiatan sosial, keagamaan, edukasi, maupun akomodasi (asrama).\n• Memiliki lokasi strategis dengan fasilitas parkir yang aman dan luas.",
     },
     {
-      "title": "Pendaftaran Online",
-      "content": "Isi detail lengkap mengenai ketentuan terkait.",
+      "title": "Ketentuan Umum & Pendaftaran",
+      "content": "• Pemesanan fasilitas gedung, ruangan, atau kamar asrama dapat dilakukan secara online melalui aplikasi Majadigi.\n• Setiap pemesanan akan terhubung ke admin WhatsApp resmi untuk konfirmasi ketersediaan jadwal dan tata cara administrasi.\n• Pengguna fasilitas diwajibkan menjaga kebersihan, ketertiban, dan menghormati nilai-kesopanan di area Islamic Center.",
     },
   ];
 }

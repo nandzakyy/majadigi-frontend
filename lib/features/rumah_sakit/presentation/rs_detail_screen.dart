@@ -299,41 +299,46 @@ class RSDetailScreen extends StatelessWidget {
       );
     }
 
-    return FutureBuilder<List<String>>(
-      future: HospitalApi().getOperationalInfo(hospitalId, category: 'requirement'),
+    final Future<List<List<String>>> combinedFuture = Future.wait([
+      HospitalApi().getOperationalInfo(hospitalId, category: 'requirement'),
+      HospitalApi().getOperationalInfo(hospitalId, category: 'benefit'),
+    ]);
+
+    return FutureBuilder<List<List<String>>>(
+      future: combinedFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: Padding(padding: EdgeInsets.all(12), child: CircularProgressIndicator()));
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(12),
+              child: CircularProgressIndicator(),
+            ),
+          );
         }
-        final requirements = snapshot.data ?? const [];
-        final benefitFuture = HospitalApi().getOperationalInfo(hospitalId, category: 'benefit');
+        final results = snapshot.data ?? const [[], []];
+        final requirements = results[0];
+        final benefits = results[1];
 
-        return FutureBuilder<List<String>>(
-          future: benefitFuture,
-          builder: (context, benefitSnap) {
-            final benefits = benefitSnap.data ?? const [];
-            return Column(
-              children: [
-                if (benefits.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: CustomAccordionWidget(
-                      title: 'Manfaat',
-                      content: benefits.join('\n'),
-                    ),
-                  ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: CustomAccordionWidget(
-                    title: 'Ketentuan Umum',
-                    content: requirements.isNotEmpty
-                        ? requirements.join('\n')
-                        : 'Silakan membawa identitas resmi dan mengikuti alur pendaftaran sesuai ketentuan rumah sakit.',
-                  ),
+        return Column(
+          children: [
+            if (benefits.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: CustomAccordionWidget(
+                  title: 'Manfaat',
+                  content: benefits.join('\n'),
                 ),
-              ],
-            );
-          },
+              ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: CustomAccordionWidget(
+                title: 'Ketentuan Umum',
+                content: requirements.isNotEmpty
+                    ? requirements.join('\n')
+                    : 'Silakan membawa identitas resmi dan mengikuti alur pendaftaran sesuai ketentuan rumah sakit.',
+              ),
+            ),
+          ],
         );
       },
     );
