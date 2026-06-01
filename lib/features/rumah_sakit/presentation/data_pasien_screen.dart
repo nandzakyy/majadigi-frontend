@@ -1,7 +1,7 @@
-import 'dart:convert';
-import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
 import '../../../core/widgets/custom_wave_header.dart';
@@ -358,24 +358,25 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
   }
 
   Future<void> _downloadTicket({
+    required GlobalKey boundaryKey,
     required String queueNumber,
-    required String hospitalName,
-    required String poli,
-    required String date,
   }) async {
     try {
-      final svgContent = _generateTicketSvg(
-        queueNumber: queueNumber,
-        hospitalName: hospitalName,
-        poli: poli,
-        date: date,
-      );
+      final boundary = boundaryKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      if (boundary == null) {
+        throw Exception("Gagal menemukan widget untuk dirender.");
+      }
+      final image = await boundary.toImage(pixelRatio: 3.0);
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      if (byteData == null) {
+        throw Exception("Gagal mengonversi gambar ke PNG.");
+      }
+      final bytes = byteData.buffer.asUint8List();
 
-      final bytes = Uint8List.fromList(utf8.encode(svgContent));
       await saveBytesAsFile(
         bytes: bytes,
-        filename: 'tiket-antrean-$queueNumber.svg',
-        mimeType: 'image/svg+xml;charset=utf-8',
+        filename: 'tiket-antrean-$queueNumber.png',
+        mimeType: 'image/png',
       );
 
       if (mounted) {
@@ -391,103 +392,6 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
         ).showSnackBar(SnackBar(content: Text('Gagal mengunduh tiket: $e')));
       }
     }
-  }
-
-  String _generateTicketSvg({
-    required String queueNumber,
-    required String hospitalName,
-    required String poli,
-    required String date,
-  }) {
-    final now = DateTime.now().toString().split('.')[0];
-
-    final safeHospitalName = _escapeXml(hospitalName);
-    final safePoli = _escapeXml(poli);
-    final safeDate = _escapeXml(date);
-    final safeQueueNumber = _escapeXml(queueNumber);
-    final safeNow = _escapeXml(now);
-
-    return '''
-<svg xmlns="http://www.w3.org/2000/svg" width="400" height="600" viewBox="0 0 400 600">
-  <rect width="400" height="600" fill="#ffffff"/>
-  <rect x="20" y="20" width="360" height="560" rx="24" fill="#ffffff" stroke="#e5e5e5" stroke-width="2"/>
-
-  <style>
-    .title {
-      font-size: 20px;
-      font-weight: 700;
-      fill: #111111;
-      font-family: Arial, sans-serif;
-    }
-
-    .label {
-      font-size: 14px;
-      font-weight: 700;
-      fill: #555555;
-      font-family: Arial, sans-serif;
-    }
-
-    .queue {
-      font-size: 72px;
-      font-weight: 900;
-      fill: #000000;
-      font-family: Arial, sans-serif;
-    }
-
-    .detail {
-      font-size: 16px;
-      fill: #111111;
-      font-family: Arial, sans-serif;
-    }
-
-    .detailBold {
-      font-size: 18px;
-      font-weight: 700;
-      fill: #111111;
-      font-family: Arial, sans-serif;
-    }
-
-    .note {
-      font-size: 13px;
-      fill: #555555;
-      font-family: Arial, sans-serif;
-    }
-
-    .small {
-      font-size: 11px;
-      fill: #777777;
-      font-family: Arial, sans-serif;
-    }
-
-    .divider {
-      stroke: #cfcfcf;
-      stroke-width: 2;
-      stroke-dasharray: 8 8;
-    }
-  </style>
-
-  <text x="200" y="75" text-anchor="middle" class="title">$safeHospitalName</text>
-
-  <text x="200" y="135" text-anchor="middle" class="label">NOMOR ANTREAN</text>
-
-  <line x1="60" y1="170" x2="340" y2="170" class="divider"/>
-
-  <text x="200" y="265" text-anchor="middle" class="queue">$safeQueueNumber</text>
-
-  <line x1="60" y1="310" x2="340" y2="310" class="divider"/>
-
-  <text x="200" y="365" text-anchor="middle" class="detail">$safePoli</text>
-  <text x="200" y="400" text-anchor="middle" class="detailBold">$safeDate</text>
-
-  <text x="200" y="475" text-anchor="middle" class="note">Harap datang sebelum nomor dipanggil</text>
-
-  <text x="200" y="540" text-anchor="middle" class="small">Diunduh: $safeNow</text>
-</svg>
-''';
-  }
-
-  String _escapeXml(String value) {
-    return const HtmlEscape(HtmlEscapeMode.element).convert(value);
   }
 
   Widget _buildLabel(String text) {
@@ -561,6 +465,7 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
     final String noAntrean =
         forcedQueueNumber ??
         "B-${(DateTime.now().millisecondsSinceEpoch % 1000).toString().padLeft(3, '0')}";
+    final GlobalKey boundaryKey = GlobalKey();
 
     showDialog(
       context: context,
@@ -573,89 +478,92 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  vertical: 32,
-                  horizontal: 24,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      widget.namaRS,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+              RepaintBoundary(
+                key: boundaryKey,
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 32,
+                    horizontal: 24,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        widget.namaRS,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
                       ),
-                    ),
 
-                    const SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
-                    const Text(
-                      "NOMOR ANTREAN",
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black54,
+                      const Text(
+                        "NOMOR ANTREAN",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black54,
+                        ),
                       ),
-                    ),
 
-                    const SizedBox(height: 24),
+                      const SizedBox(height: 24),
 
-                    _dashedDivider(),
+                      _dashedDivider(),
 
-                    const SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
-                    Text(
-                      noAntrean,
-                      style: const TextStyle(
-                        fontSize: 64,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.black,
-                        height: 1.0,
+                      Text(
+                        noAntrean,
+                        style: const TextStyle(
+                          fontSize: 64,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.black,
+                          height: 1.0,
+                        ),
                       ),
-                    ),
 
-                    const SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
-                    _dashedDivider(),
+                      _dashedDivider(),
 
-                    const SizedBox(height: 24),
+                      const SizedBox(height: 24),
 
-                    Text(
-                      widget.selectedPoli ?? "-",
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.black87,
+                      Text(
+                        widget.selectedPoli ?? "-",
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.black87,
+                        ),
                       ),
-                    ),
 
-                    const SizedBox(height: 8),
+                      const SizedBox(height: 8),
 
-                    Text(
-                      widget.selectedDate ?? "-",
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                      Text(
+                        widget.selectedDate ?? "-",
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
                       ),
-                    ),
 
-                    const SizedBox(height: 24),
+                      const SizedBox(height: 24),
 
-                    const Text(
-                      "Harap datang sebelum nomor\ndipanggil",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 12, color: Colors.black54),
-                    ),
-                  ],
+                      const Text(
+                        "Harap datang sebelum nomor\ndipanggil",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 12, color: Colors.black54),
+                      ),
+                    ],
+                  ),
                 ),
               ),
 
@@ -677,10 +585,8 @@ class _DataPasienScreenState extends State<DataPasienScreen> {
                       ),
                       onPressed: () async {
                         await _downloadTicket(
+                          boundaryKey: boundaryKey,
                           queueNumber: noAntrean,
-                          hospitalName: widget.namaRS,
-                          poli: widget.selectedPoli ?? "-",
-                          date: widget.selectedDate ?? "-",
                         );
                       },
                     ),

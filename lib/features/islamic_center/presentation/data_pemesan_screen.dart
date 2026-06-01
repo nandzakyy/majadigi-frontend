@@ -85,22 +85,56 @@ class _DataPemesanScreenState extends State<DataPemesanScreen> {
     final String nama = _namaController.text.trim();
     final String tanggal = _dateController.text.trim();
     final isAsrama = widget.isAsrama;
-    final String waktuText = isAsrama ? "" : "\n\nWaktu:\n${_selectedWaktu!}";
+    
+    final titleLower = widget.model.title.toLowerCase();
+    final isMasjid = titleLower.contains('masjid') || titleLower.contains('akad nikah');
 
-    final String pesan = '''Assalamu'alaikum,
-Saya ingin melakukan pemesanan fasilitas Islamic Center.
+    String pesan;
+    if (isAsrama) {
+      pesan = '''Halo!
 
-Fasilitas:
-${widget.model.title}
+Saya ingin melakukan pemesanan asrama di Islamic Center.
 
-Nama:
-$nama
+Detail Pemesanan:
+* Nama Lengkap: $nama
+* Check In: $tanggal
+* Kamar yang Dipilih: ${widget.model.title}
 
-Tanggal:
-$tanggal$waktuText''';
+Mohon konfirmasi ketersediaan kamar tersebut.
+
+Terima kasih.''';
+    } else if (isMasjid) {
+      pesan = '''Halo!
+
+Saya ingin melakukan pemesanan ruangan di Islamic Center.
+
+Detail Pemesanan:
+* Nama Lengkap: $nama
+* Tanggal Pemesanan: $tanggal
+* Waktu Pemesanan: $_selectedWaktu
+* Ruangan yang Dipesan: ${widget.model.title}
+
+Mohon konfirmasi ketersediaan ruangan tersebut.
+
+Terima kasih.''';
+    } else {
+      pesan = '''Halo!
+
+Saya ingin melakukan pemesanan aula di Islamic Center.
+
+Detail Pemesanan:
+* Nama Lengkap: $nama
+* Tanggal Pemesanan: $tanggal
+* Waktu Pemesanan: $_selectedWaktu
+* Aula yang Dipilih: ${widget.model.title}
+
+Mohon konfirmasi ketersediaan aula tersebut.
+
+Terima kasih.''';
+    }
 
     final String encodedMessage = Uri.encodeComponent(pesan);
-    final Uri whatsappUrl = Uri.parse("https://wa.me/6281234567890?text=$encodedMessage");
+    final Uri whatsappUrl = Uri.parse("https://wa.me/6282142990280?text=$encodedMessage");
 
     try {
       await launchUrl(whatsappUrl, mode: LaunchMode.externalApplication);

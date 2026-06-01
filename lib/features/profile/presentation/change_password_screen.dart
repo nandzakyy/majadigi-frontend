@@ -146,7 +146,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         RichText(
           text: TextSpan(
             text: label,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87),
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.normal, color: Colors.black87),
             children: const [
               TextSpan(text: '*', style: TextStyle(color: Colors.red)),
             ],

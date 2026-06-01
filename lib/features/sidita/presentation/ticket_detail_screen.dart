@@ -1,14 +1,21 @@
-import 'dart:convert';
-import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import '../../../core/widgets/custom_wave_header.dart';
 import '../../../core/utils/file_download/file_download.dart';
 
-class TicketDetailScreen extends StatelessWidget {
+class TicketDetailScreen extends StatefulWidget {
   final Map<String, String> ticket;
 
   const TicketDetailScreen({super.key, required this.ticket});
+
+  @override
+  State<TicketDetailScreen> createState() => _TicketDetailScreenState();
+}
+
+class _TicketDetailScreenState extends State<TicketDetailScreen> {
+  final GlobalKey _boundaryKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +29,10 @@ class TicketDetailScreen extends StatelessWidget {
               padding: const EdgeInsets.all(24),
               child: Column(
                 children: [
-                  _buildTicketCard(context),
+                  RepaintBoundary(
+                    key: _boundaryKey,
+                    child: _buildTicketCard(context),
+                  ),
                   const SizedBox(height: 32),
                   SizedBox(
                     width: double.infinity,
@@ -60,6 +70,7 @@ class TicketDetailScreen extends StatelessWidget {
   }
 
   Widget _buildTicketCard(BuildContext context) {
+    final ticket = widget.ticket;
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFFF1F1F1),
@@ -254,18 +265,26 @@ class TicketDetailScreen extends StatelessWidget {
 
   Future<void> _downloadTicket(BuildContext context) async {
     try {
-      final svgContent = _generateTicketSvg();
-      final bytes = Uint8List.fromList(utf8.encode(svgContent));
+      final boundary = _boundaryKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      if (boundary == null) {
+        throw Exception("Gagal menemukan widget untuk dirender.");
+      }
+      final image = await boundary.toImage(pixelRatio: 3.0);
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      if (byteData == null) {
+        throw Exception("Gagal mengonversi gambar ke PNG.");
+      }
+      final bytes = byteData.buffer.asUint8List();
 
-      final name = (ticket['name'] ?? 'tiket').trim();
+      final name = (widget.ticket['name'] ?? 'tiket').trim();
       final safeName = name.isEmpty
           ? 'tiket'
           : name.replaceAll(RegExp(r'[^a-zA-Z0-9._-]+'), '-');
 
       await saveBytesAsFile(
         bytes: bytes,
-        filename: 'tiket-$safeName.svg',
-        mimeType: 'image/svg+xml;charset=utf-8',
+        filename: 'tiket-$safeName.png',
+        mimeType: 'image/png',
       );
 
       if (context.mounted) {
@@ -278,67 +297,6 @@ class TicketDetailScreen extends StatelessWidget {
         ).showSnackBar(SnackBar(content: Text('Gagal mengunduh tiket: $e')));
       }
     }
-  }
-
-  String _generateTicketSvg() {
-    final name = _escapeXml(ticket['name'] ?? '-');
-    final date = _escapeXml(ticket['date'] ?? '-');
-    final time = _escapeXml(ticket['time'] ?? '-');
-    final quantity = _escapeXml(ticket['quantity'] ?? '1');
-    final total = _escapeXml(ticket['totalPayment'] ?? '0');
-    final alamat = _escapeXml(ticket['alamat'] ?? '-');
-
-    final now = _escapeXml(DateTime.now().toString().split('.').first);
-
-    return '''
-<svg xmlns="http://www.w3.org/2000/svg" width="420" height="640" viewBox="0 0 420 640">
-  <rect width="420" height="640" fill="#ffffff"/>
-  <rect x="20" y="20" width="380" height="600" rx="24" fill="#ffffff" stroke="#e5e5e5" stroke-width="2"/>
-
-  <style>
-    .title { font-size: 20px; font-weight: 700; fill: #111111; font-family: Arial, sans-serif; }
-    .subtitle { font-size: 13px; font-weight: 700; fill: #0065FF; font-family: Arial, sans-serif; }
-    .label { font-size: 12px; font-weight: 700; fill: #666666; font-family: Arial, sans-serif; }
-    .value { font-size: 16px; font-weight: 700; fill: #111111; font-family: Arial, sans-serif; }
-    .muted { font-size: 12px; fill: #666666; font-family: Arial, sans-serif; }
-    .divider { stroke: #cfcfcf; stroke-width: 2; stroke-dasharray: 8 8; }
-    .qrBox { fill: #ffffff; stroke: #e9e9e9; stroke-width: 2; }
-    .qrText { font-size: 11px; fill: #999999; font-family: Arial, sans-serif; }
-  </style>
-
-  <text x="210" y="70" text-anchor="middle" class="subtitle">SIDITA</text>
-  <text x="210" y="100" text-anchor="middle" class="title">Tiket Masuk</text>
-  <text x="210" y="130" text-anchor="middle" class="value">$name</text>
-
-  <line x1="60" y1="165" x2="360" y2="165" class="divider"/>
-
-  <text x="60" y="205" class="label">Tanggal</text>
-  <text x="60" y="230" class="value">$date</text>
-
-  <text x="60" y="270" class="label">Waktu</text>
-  <text x="60" y="295" class="value">$time WIB</text>
-
-  <text x="60" y="335" class="label">Jumlah Pengunjung</text>
-  <text x="60" y="360" class="value">$quantity</text>
-
-  <text x="60" y="400" class="label">Total Pembayaran</text>
-  <text x="60" y="425" class="value">Rp $total</text>
-
-  <text x="60" y="465" class="label">Alamat</text>
-  <text x="60" y="490" class="muted">$alamat</text>
-
-  <line x1="60" y1="520" x2="360" y2="520" class="divider"/>
-
-  <rect x="145" y="540" width="130" height="80" rx="12" class="qrBox"/>
-  <text x="210" y="585" text-anchor="middle" class="qrText">QR (coming soon)</text>
-
-  <text x="210" y="625" text-anchor="middle" class="qrText">Diunduh: $now</text>
-</svg>
-''';
-  }
-
-  String _escapeXml(String value) {
-    return const HtmlEscape(HtmlEscapeMode.element).convert(value);
   }
 
   void _showSuccessSnackbar(BuildContext context) {
