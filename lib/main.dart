@@ -58,6 +58,7 @@ class _MajadigiAppState extends State<MajadigiApp> {
             primaryColor: AppColors.primary,
             scaffoldBackgroundColor: AppColors.background,
             colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
+            fontFamily: GoogleFonts.poppins().fontFamily,
             textTheme: GoogleFonts.poppinsTextTheme(
               Theme.of(context).textTheme,
             ),

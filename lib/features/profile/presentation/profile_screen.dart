@@ -6,7 +6,7 @@ import 'package:majadigi/features/profile/presentation/personal_data_screen.dart
 import 'package:majadigi/features/profile/presentation/change_password_screen.dart';
 import 'package:majadigi/features/profile/presentation/profile_dialogs.dart';
 import 'package:majadigi/features/profile/presentation/about_jatim_screen.dart';
-import 'package:majadigi/features/profile/presentation/language_screen.dart';
+
 import 'package:majadigi/features/profile/presentation/about_majadigi_screen.dart';
 import 'package:majadigi/features/profile/presentation/terms_screen.dart';
 import 'package:majadigi/features/profile/presentation/privacy_screen.dart';
@@ -205,17 +205,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       );
                     },
                   ),
-                  _buildListTile(
-                    icon: Icons.translate,
-                    title: 'Bahasa',
-                    trailingText: 'Indonesia',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const LanguageScreen()),
-                      );
-                    },
-                  ),
+
                   _buildListTile(
                     icon: Icons.info_outline,
                     title: 'Tentang Majadigi',
