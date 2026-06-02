@@ -155,7 +155,7 @@ class _AntreanScreenState extends State<AntreanScreen> {
         children: [
           // Header biru melengkung
           CustomWaveHeader(
-            title: "Informasi Antrean Pasien",
+            title: "Pendaftaran Pasien",
             onSavePressed: () {},
           ),
 
@@ -418,3 +418,4 @@ class _AntreanScreenState extends State<AntreanScreen> {
     );
   }
 }
+

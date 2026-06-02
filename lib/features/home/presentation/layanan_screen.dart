@@ -64,8 +64,8 @@ class _LayananScreenState extends State<LayananScreen> {
         return input
             .toLowerCase()
             .replaceAll('.', '')
-            .replaceAll(RegExp(r'\\bdr\\b'), '')
-            .replaceAll(RegExp(r'\\brsud\\b'), '')
+            .replaceAll(RegExp(r'\bdr\b'), '')
+            .replaceAll(RegExp(r'\brsud\b'), '')
             .replaceAll(RegExp(r'[^a-z0-9]+'), '')
             .trim();
       }
@@ -115,11 +115,12 @@ class _LayananScreenState extends State<LayananScreen> {
       systemNavigationBarIconBrightness: Brightness.dark,
     ));
     return Scaffold(
+      backgroundColor: Colors.white,
       body: Column(
         children: [
           CustomWaveHeader(
             useWaveStyle: false,
-            bottomCurveColor: AppColors.background,
+            bottomCurveColor: Colors.white,
             title: 'Semua Layanan',
             onBackTap: widget.onBack,
           ),
@@ -180,10 +181,10 @@ class _LayananScreenState extends State<LayananScreen> {
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: Colors.grey.shade100, width: 1.5),
+                            border: Border.all(color: Colors.grey.shade200, width: 1.5),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.03),
+                                color: Colors.black.withOpacity(0.04),
                                 blurRadius: 12,
                                 offset: const Offset(0, 6),
                               ),

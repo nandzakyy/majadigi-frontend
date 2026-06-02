@@ -171,7 +171,7 @@ class DashboardView extends StatelessWidget {
             child: ListView(
               padding: EdgeInsets.only(
                 top: 18,
-                bottom: 110 + MediaQuery.of(context).padding.bottom,
+                bottom: 92 + MediaQuery.of(context).padding.bottom,
               ),
               children: [
                 // The rest of the page content is horizontally padded so header can be full-bleed
@@ -243,12 +243,12 @@ class DashboardView extends StatelessWidget {
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
-                                  color: Colors.grey.shade100,
+                                  color: Colors.grey.shade200,
                                   width: 1.5,
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.03),
+                                    color: Colors.black.withOpacity(0.04),
                                     blurRadius: 12,
                                     offset: const Offset(0, 6),
                                   ),
@@ -404,6 +404,7 @@ class DashboardView extends StatelessWidget {
                     ],
                   ),
                 ),
+                _buildJatimDalamAngka(context),
               ],
             ),
           ),
@@ -725,10 +726,10 @@ class DashboardView extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade100, width: 1.5),
+        border: Border.all(color: Colors.grey.shade200, width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.015),
+            color: Colors.black.withOpacity(0.025),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -804,6 +805,138 @@ class DashboardView extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildJatimDalamAngka(BuildContext context) {
+    final stats = [
+      {
+        'title': 'Jumlah Penduduk',
+        'value': '42+ jt',
+        'icon': Icons.people_alt_outlined,
+      },
+      {
+        'title': 'Pertumbuhan Penduduk',
+        'value': '0,73 %',
+        'icon': Icons.trending_up_rounded,
+      },
+      {
+        'title': 'Luas Daerah',
+        'value': '48.036 km²',
+        'icon': Icons.map_outlined,
+      },
+      {
+        'title': 'Presentase Penduduk Miskin',
+        'value': '9,56 %',
+        'icon': Icons.home_work_outlined,
+      },
+    ];
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(top: 28),
+      padding: const EdgeInsets.symmetric(vertical: 24),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        image: DecorationImage(
+          image: AssetImage('assets/images/Jawa Timur.png'),
+          fit: BoxFit.cover,
+          opacity: 0.08, // 8% opacity as requested
+          alignment: Alignment.centerLeft,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20.0),
+            child: Text(
+              'Jatim Dalam Angka',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textMain,
+              ),
+            ),
+          ),
+          const SizedBox(height: 24), // Increased spacing between title and cards
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              clipBehavior: Clip.antiAlias, // Restricts scroll view boundary
+              child: Row(
+                children: stats.map((stat) {
+                  return Container(
+                    width: 230,
+                    height: 95,
+                    margin: const EdgeInsets.only(right: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      gradient: const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Color(0xFF1B4AB4), // Dark Blue Majadigi
+                          AppColors.primary, // Primary Blue (0xFF0065FF)
+                        ],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF003399).withOpacity(0.18),
+                          blurRadius: 12,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Icon(
+                          stat['icon'] as IconData,
+                          color: Colors.white,
+                          size: 32,
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                stat['title'] as String,
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.85),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                stat['value'] as String,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

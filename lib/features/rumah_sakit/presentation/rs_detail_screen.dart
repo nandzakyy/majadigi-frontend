@@ -219,7 +219,7 @@ class RSDetailScreen extends StatelessWidget {
       children: [
         CustomInfoCard(
           icon: Icons.people,
-          title: "Informasi Antrean Pasien",
+          title: "Pendaftaran Pasien",
           onTap: () {
             Navigator.push(
               context,
