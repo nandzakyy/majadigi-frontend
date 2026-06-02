@@ -25,44 +25,45 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
   void initState() {
     super.initState();
 
-    // Total duration: 900ms delay + 600ms text slide + 500ms logo fade/scale = 2000ms
+    // Total duration extended to 2600ms for a smoother, premium feel
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2000),
+      duration: const Duration(milliseconds: 2600),
     );
 
-    // Wave and text slide up: 900ms to 1500ms (0.45 to 0.75)
+    // Wave and text slide up: 20% to 70% of duration (520ms to 1820ms)
+    // Using Curves.easeOutBack to rise up and settle slightly back down
     _waveAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(0.45, 0.75, curve: Curves.easeInOut),
+        curve: const Interval(0.20, 0.70, curve: Curves.easeOutBack),
       ),
     );
 
     _textAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(0.45, 0.75, curve: Curves.easeInOut),
+        curve: const Interval(0.20, 0.70, curve: Curves.easeOutBack),
       ),
     );
 
-    // Logo fade in: 1500ms to 2000ms (0.75 to 1.0)
+    // Logo fade in: 70% to 95% of duration (1820ms to 2470ms)
     _logoOpacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(0.75, 1.0, curve: Curves.easeIn),
+        curve: const Interval(0.70, 0.95, curve: Curves.easeIn),
       ),
     );
 
-    // Logo scale in: 1500ms to 2000ms (0.75 to 1.0)
-    _logoScaleAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
+    // Logo scale in (gentle zoom in/scale effect): 70% to 95%
+    _logoScaleAnimation = Tween<double>(begin: 0.90, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(0.75, 1.0, curve: Curves.easeOutBack),
+        curve: const Interval(0.70, 0.95, curve: Curves.easeOut),
       ),
     );
 
-    // Start the animation immediately and play it once
+    // Start the animation immediately
     _controller.forward();
   }
 
@@ -84,142 +85,156 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
           // Helper to interpolate double values
           double lerp(double start, double end, double t) => start + (end - start) * t;
 
-          // Dark Blue Wave (Background layer) - Stays static
-          final double dbStart = screenHeight * 0.62;
-          final double dbControl = screenHeight * 0.72;
-          final double dbEnd = screenHeight * 0.58;
+          // Dark Blue Wave (Background layer) - Sinks slightly down to open space
+          final double dbStart = lerp(screenHeight * 0.60, screenHeight * 0.64, _waveAnimation.value);
+          final double dbControl = lerp(screenHeight * 0.72, screenHeight * 0.76, _waveAnimation.value);
+          final double dbEnd = dbStart; // Symmetrical circular curve
 
-          // Light Blue Wave (Top layer) - Moves up significantly
-          final double lbStart = lerp(screenHeight * 0.60, screenHeight * 0.25, _waveAnimation.value);
-          final double lbControl = lerp(screenHeight * 0.70, screenHeight * 0.33, _waveAnimation.value);
-          final double lbEnd = lerp(screenHeight * 0.56, screenHeight * 0.20, _waveAnimation.value);
+          // Light Blue Wave (Top layer) - Rises up significantly (lowered to screenHeight * 0.32)
+          final double lbStart = lerp(screenHeight * 0.58, screenHeight * 0.32, _waveAnimation.value);
+          final double lbControl = lerp(screenHeight * 0.70, screenHeight * 0.44, _waveAnimation.value);
+          final double lbEnd = lbStart; // Symmetrical circular curve
 
-          // Text vertical translation
-          final double textTop = lerp(screenHeight * 0.38, screenHeight * 0.08, _textAnimation.value);
+          // Text vertical translation (lowered to screenHeight * 0.15)
+          final double textTop = lerp(screenHeight * 0.38, screenHeight * 0.15, _textAnimation.value);
 
-          return Stack(
-            children: [
-              // 1. Dark Blue Wave (Background layer)
-              ClipPath(
-                clipper: WaveClipper(
-                  startHeight: dbStart,
-                  controlHeight: dbControl,
-                  endHeight: dbEnd,
+          // Static button position based on final dbControl to avoid moving
+          final double staticDbControl = screenHeight * 0.76;
+          final double buttonTop = staticDbControl + (screenHeight - staticDbControl) / 2 - 26;
+
+          // Entire view zooms out gently during transition (from 1.08 scale to 1.0)
+          final double overallScale = lerp(1.08, 1.0, _waveAnimation.value);
+
+          return Transform.scale(
+            scale: overallScale,
+            child: Stack(
+              children: [
+                // 1. Dark Blue Wave (Background layer)
+                ClipPath(
+                  clipper: WaveClipper(
+                    startHeight: dbStart,
+                    controlHeight: dbControl,
+                    endHeight: dbEnd,
+                  ),
+                  child: Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                    color: const Color(0xFF084298),
+                  ),
                 ),
-                child: Container(
-                  width: double.infinity,
-                  height: double.infinity,
-                  color: const Color(0xFF084298), // Dark Blue matching the designs
-                ),
-              ),
 
-              // 2. Light Blue Wave (Top layer)
-              ClipPath(
-                clipper: WaveClipper(
-                  startHeight: lbStart,
-                  controlHeight: lbControl,
-                  endHeight: lbEnd,
+                // 2. Light Blue Wave (Top layer)
+                ClipPath(
+                  clipper: WaveClipper(
+                    startHeight: lbStart,
+                    controlHeight: lbControl,
+                    endHeight: lbEnd,
+                  ),
+                  child: Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                    color: const Color(0xFF0D6EFD),
+                  ),
                 ),
-                child: Container(
-                  width: double.infinity,
-                  height: double.infinity,
-                  color: const Color(0xFF0D6EFD), // Light Blue vibrant color
-                ),
-              ),
 
-              // 3. Greeting and Subtitle text (Animated vertical position)
-              Positioned(
-                top: textTop,
-                left: 24,
-                right: 24,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    Text(
-                      'Selamat Datang di Majadigi!',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+                // 3. Greeting and Subtitle text (Animated vertical position)
+                Positioned(
+                  top: textTop,
+                  left: 24,
+                  right: 24,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      Text(
+                        'Selamat Datang di Majadigi!',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 16),
-                    Text(
-                      'Platform layanan publik Jawa Timur.\nSimple. Cerdas. terhubung sepenuhnya',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        height: 1.5,
+                      SizedBox(height: 16),
+                      Text(
+                        'Platform layanan publik Jawa Timur.\nSimple. Cerdas. terhubung sepenuhnya',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          height: 1.5,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
 
-              // 4. Logo (MAJADIGI card logo copy.png, fades/scales in State 3)
-              Positioned(
-                top: screenHeight * 0.38,
-                left: 24,
-                right: 24,
-                child: FadeTransition(
-                  opacity: _logoOpacityAnimation,
-                  child: ScaleTransition(
-                    scale: _logoScaleAnimation,
-                    child: Center(
-                      child: Image.asset(
-                        'assets/images/majadigi_logo copy.png',
-                        height: 90,
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) {
-                          return const Center(
-                            child: Text(
-                              'Gambar logo tidak ditemukan',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          );
-                        },
+                // 4. Logo (MAJADIGI card logo copy.png, fades/scales in after waves settle)
+                Positioned(
+                  top: screenHeight * 0.45,
+                  left: 24,
+                  right: 24,
+                  child: FadeTransition(
+                    opacity: _logoOpacityAnimation,
+                    child: ScaleTransition(
+                      scale: _logoScaleAnimation,
+                      child: Center(
+                        child: Image.asset(
+                          'assets/images/majadigi_logo copy.png',
+                          height: 90,
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Center(
+                              child: Text(
+                                'Gambar logo tidak ditemukan',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
 
-              // 5. "Lanjut" Button at the bottom of white area
-              Positioned(
-                top: dbControl + (screenHeight - dbControl) / 2 - 26,
-                left: 24,
-                right: 24,
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const LoginScreen()),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF3B71F3),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                // 5. "Lanjut" Button at the bottom of white area
+                Positioned(
+                  top: buttonTop,
+                  left: 24,
+                  right: 24,
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        // Reset the controller and wait for push
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const LoginScreen()),
+                        );
+                        // Replay the animation from the start when popped back to the splash screen
+                        _controller.reset();
+                        _controller.forward();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF3B71F3),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
                       ),
-                      elevation: 0,
-                    ),
-                    child: const Text(
-                      'Lanjut',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                      child: const Text(
+                        'Lanjut',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           );
         },
       ),
@@ -242,8 +257,9 @@ class WaveClipper extends CustomClipper<Path> {
   Path getClip(Size size) {
     var path = Path();
     path.lineTo(0, startHeight);
+    // Center control point (size.width / 2) for perfect symmetrical round curve
     path.quadraticBezierTo(
-      size.width / 2.5, controlHeight,
+      size.width / 2, controlHeight,
       size.width, endHeight
     );
     path.lineTo(size.width, 0);

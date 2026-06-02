@@ -414,17 +414,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
                       // Animated Switcher for smooth tab transition
                       AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 300),
+                        duration: const Duration(milliseconds: 250),
                         transitionBuilder: (Widget child, Animation<double> animation) {
                           return FadeTransition(
                             opacity: animation,
-                            child: SlideTransition(
-                              position: Tween<Offset>(
-                                begin: const Offset(0.0, 0.05),
-                                end: Offset.zero,
-                              ).animate(animation),
-                              child: child,
-                            ),
+                            child: child,
                           );
                         },
                         child: _activeTab == 0

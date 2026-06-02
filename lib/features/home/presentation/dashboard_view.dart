@@ -171,7 +171,7 @@ class DashboardView extends StatelessWidget {
             child: ListView(
               padding: EdgeInsets.only(
                 top: 18,
-                bottom: 92 + MediaQuery.of(context).padding.bottom,
+                bottom: 58 + MediaQuery.of(context).padding.bottom,
               ),
               children: [
                 // The rest of the page content is horizontally padded so header can be full-bleed
@@ -352,7 +352,7 @@ class DashboardView extends StatelessWidget {
                       ],
 
                       // Ekosistem Data Jawa Timur Section
-                      const SizedBox(height: 28),
+                      const SizedBox(height: 6),
                       const Text(
                         'Ekosistem Data Jawa Timur',
                         style: TextStyle(
@@ -836,15 +836,9 @@ class DashboardView extends StatelessWidget {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(top: 28),
-      padding: const EdgeInsets.symmetric(vertical: 24),
+      padding: const EdgeInsets.only(top: 24, bottom: 8),
       decoration: const BoxDecoration(
         color: Colors.white,
-        image: DecorationImage(
-          image: AssetImage('assets/images/Jawa Timur.png'),
-          fit: BoxFit.cover,
-          opacity: 0.08, // 8% opacity as requested
-          alignment: Alignment.centerLeft,
-        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
